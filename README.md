@@ -4,7 +4,7 @@ OpenSource tools from the E3SM Autotuning team
 
 This is a working repository for the "Autotuning" Epic, started in FY21 under the NGD Software and Algorithms portfolio. The project is working to add some automation to the GCM tuning process using UQ and ML algorithms.
 
-POCs are Benj Wagman, Drew Yarger, Lyndsay Shand, and Andy Salinger (formerly K. Chowdhary). 
+POCs are Benjamin M. Wagman, Drew Yarger, Lyndsay Shand, and Andy Salinger (formerly K. Chowdhary). 
 
 The slides from our March 2nd All-Hands Webinar presentation are at https://github.com/E3SM-Project/Autotuning-NGD/blob/main/docs/presentations/e3sm_allhands_2023/allhands_slides.pptx.
 

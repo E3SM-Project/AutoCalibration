@@ -6,7 +6,6 @@ This is a working repository for the "Autotuning" Epic, started in FY21 under th
 
 POCs are Benjamin M. Wagman, Drew Yarger, Lyndsay Shand, and Andy Salinger (formerly K. Chowdhary). 
 
-The slides from our March 2nd All-Hands Webinar presentation are at https://github.com/E3SM-Project/Autotuning-NGD/blob/main/docs/presentations/e3sm_allhands_2023/allhands_slides.pptx.
 
 * The file "requirements.txt" sets up the Python packages and environment that we use for autotuning, resulting in the package versions described by "autotuning_environment.yaml". Our code depends on the "tesuract" and "clif" packages built by K. Chowdhary as specified in "requirements.txt". 
 

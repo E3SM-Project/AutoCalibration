@@ -1,0 +1,182 @@
+---
+title: "Explore RESTOM"
+output: pdf_document
+date: "2023-02-24"
+---
+
+```{r}
+library(ncdf4)
+library(fields)
+params <- list(nyears = '10yr',resolution = '24x48', n_components = 16, 
+               variable = 'SWCF_LWCF_PRECT_PSL_Z500_U200_U850_TREFHT_U_RELHUM_T_RESTOM', season = 'ALL',
+                   subtract = 'raw')
+print(unlist(params))
+variable <- params[['variable']]
+variables <- strsplit(variable, '_')[[1]]
+variable_types <- c('SWCF' = 'lat_lon', 
+                    'LWCF' = 'lat_lon',
+                    'PRECT' = 'lat_lon',
+                    'PSL' = 'lat_lon',
+                    'Z500' = 'lat_lon',
+                    'U200' = 'lat_lon',
+                    'U850' = 'lat_lon',
+                    'TREFHT' = 'lat_lon',
+                    'U' = 'lat_plev',
+                    'T' = 'lat_plev',
+                    'RELHUM' = 'lat_plev',
+                    'RESTOM' = 'global')
+unique_variable_types  <-  unique(variable_types[variables])
+variables_plev <- variables[variable_types[variables] == 'lat_plev']
+variables_lon <- variables[variable_types[variables] == 'lat_lon']
+n_plev_vars  <- length(variables_plev)
+n_lon_vars  <- length(variables_lon)
+
+res_vals_lon <- as.numeric(strsplit(params[['resolution']], 'x')[[1]])
+res_vals_plev <- c(24, 37)
+nvar <- length(variables)
+if (nvar == 3) {
+  plot_dim_im = list(mfrow=c(2,2), mar= 4*c(0.5, 0.5, 0.5, 0.5))
+  plot_dim = list(mfrow=c(2,2), mar= 8*c(0.5, 0.5, 0.5, 0.5))
+} else if (nvar == 1) {
+  plot_dim_im = list(mfrow=c(1,1))
+  plot_dim = list(mfrow=c(1,1))
+} else  if (nvar == 8) {
+  plot_dim_im = list(mfrow=c(3,3), mar= 4*c(0.5, 0.5, 0.5, 0.5))
+  plot_dim = list(mfrow=c(3,3), mar= 4*c(0.5, 0.5, 0.5, 0.5))
+}
+if (params[['season']] == 'ALL') {
+  eg <- expand.grid(variables, c('DJF', 'MAM', 'JJA', 'SON'))
+  variables_vec <- as.character(eg[,1])
+  seasons_vec <- eg[,2]
+  variables <- sprintf('%s: %s', eg[,1], eg[,2])
+  n_plev_vars  <- sum(variable_types[variables_vec] == 'lat_plev')
+  n_lon_vars  <- sum(variable_types[variables_vec] == 'lat_lon')
+  nvar <- n_plev_vars + n_lon_vars
+} else {
+  seasons_vec <- rep(params[['season']], nvar)
+  variables_vec <- variables
+}
+misc_runs <- c('0522', '8fields_ALL_24x48', '8fields_ANN_24x48', 
+               '11fields_ALL_orig', '11fields_ALL_20230227', '11fields_ALL_RESTOM.7', 
+               'global_RMSE_RESTOM.7_sqrtn', 'global_RMSE_RESTOM.7_scalarboth', 
+               'global_RMSE_RESTOM.7_scalarrmseatdefault')
+
+data_frame_list <- list()
+sim_tensor <- array(dim = c(180, 360, 250, 8, 4))
+#sur_tensor <- array(dim = c(180, 360, 250, 8, 4))
+data_frame_pcs_list <- list()
+unique_variable_types
+j <- 3
+
+surr_file <- nc_open(paste0('surrogate_models/pred_',params[['season']], '_',  params[['nyears']], '_obs_full_', params[['resolution']], '_', params[['n_components']], '_',  params[['variable']], '_', params[['subtract']], '.nc'))
+  
+  if (unique_variable_types[j] == 'global') {
+    vals_use <- ncvar_get(surr_file, 'values')
+    data_frame_list[[length(data_frame_list) + 1]] <- data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'surr', 
+               sim_run = 1:250, variable = 'RESTOM', res = NA,
+               value = vals_use[nrow(vals_use),]) 
+    nc_close(surr_file)
+    sim_file <- nc_open('data/lat_lon_10yr_180x360_ANN.nc')
+    FLNT <- ncvar_get(sim_file, 'FLNT')
+    FSNT <- ncvar_get(sim_file, 'FSNT')
+    area <- ncvar_get(sim_file, 'area')
+    area_norm <-  area/sum(area) * 250
+    RESTOM <- apply(area_norm * (FSNT - FLNT),3, sum)
+    data_frame_list[[length(data_frame_list) + 1]] <- data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'sim', 
+                                                                 sim_run = 1:250, variable = 'RESTOM', res = NA,
+                                                                 value = RESTOM) 
+    
+    ctrl_file <- nc_open('data/lat_lon_10yr_180x360_ANN_ctrl.nc')
+    FLNT <- ncvar_get(ctrl_file, 'FLNT')
+    FSNT <- ncvar_get(ctrl_file, 'FSNT')
+    area <- ncvar_get(ctrl_file, 'area')
+    nc_close(ctrl_file)
+    area_norm <-  area/sum(area) 
+    RESTOM_ctrl <- sum(area_norm * (FSNT - FLNT))
+    RESTOM_misc <- rep(0, length(misc_runs))
+    for (r in 1:length(misc_runs)) {
+      misc_file <- nc_open(paste0('data/lat_lon_10yr_180x360_ANN_miscsim_',
+                                  misc_runs[r], '.nc'))
+      FLNT <- ncvar_get(misc_file, 'FLNT')
+      FSNT <- ncvar_get(misc_file, 'FSNT')
+      area <- ncvar_get(misc_file, 'area')
+      area_norm <-  area/sum(area) 
+      RESTOM_misc[r] <- sum(area_norm * (FSNT - FLNT))
+      nc_close(misc_file)
+    }
+    names(RESTOM_misc) <- misc_runs
+    
+    # df <- rbind(data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'sim', 
+    #                        sim_run = 1:250, variable = 'RESTOM', res = NA, value = RESTOM),
+    #             data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'surr', 
+    #                        sim_run = 1:250, variable = 'RESTOM', res = NA, value = vals_use[nrow(vals_use),]),
+    #             data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'ctrl', 
+    #                        sim_run = NA, variable = 'RESTOM', res = NA, value = RESTOM_ctrl),
+    #             data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = misc_runs, 
+    #                        sim_run = NA, variable = 'RESTOM', res = NA, value = RESTOM_misc))
+  }
+
+
+library(dplyr)
+df <- rbind(data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'sim', 
+                       sim_run = 1:250, variable = 'RESTOM', res = NA, value = RESTOM),
+            data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'surr', 
+                       sim_run = 1:250, variable = 'RESTOM', res = NA, value = vals_use[nrow(vals_use),]),
+            data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'ctrl', 
+                       sim_run = NA, variable = 'RESTOM', res = NA, value = RESTOM_ctrl),
+            data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = misc_runs, 
+                       sim_run = NA, variable = 'RESTOM', res = NA, value = RESTOM_misc))%>%
+  left_join(data.frame(type = c('sim', 'surr'), type_label = c('Simulation', 'Surrogate')))
+
+library(ggplot2)
+theme_set(theme_bw())
+ggplot(data = df %>% filter(type_label %in% c('Simulation', 'Surrogate')), aes(x = value))+
+  geom_histogram() + 
+  facet_wrap(~type_label) + 
+  labs(x = 'RESTOM', y = 'Number of Simulation Runs',
+       title = 'Histogram of RESTOM values for PPE')
+
+ggplot(data = df, aes(x = type, y = value))+
+  geom_boxplot() + 
+  labs(y = 'RESTOM', x = 'Type', 
+       title = 'Boxplot of RESTOM values') + 
+  annotate(geom = 'text', label = round(df$value[!(df$type %in% c('sim', 'surr'))], 2),
+           x = df$type[!(df$type %in% c('sim', 'surr'))], y = df$value[!(df$type %in% c('sim', 'surr'))], vjust = -1) +   
+  theme(axis.text.x = element_text(angle = 45))
+
+plot(df$value[df$type_label == 'Simulation'],
+     df$value[df$type_label == 'Surrogate'],
+     xlab = 'Simulation RESTOM values', 
+     ylab = 'Predicted Surrogate RESTOM values')
+abline(a = 0, b = 1)
+
+df %>%
+  filter(!(type_label %in% c('Simulation', 'Surrogate'))) %>%
+  dplyr::select(type, variable, value) %>%
+  mutate(value = round(value, 3))
+```
+
+
+```{r}
+sim_file <- nc_open('data/lat_lon_10yr_180x360_ANN.nc')
+parms <- t(ncvar_get(sim_file, 'lhs'))
+var_names <- sim_file$dim$x
+colnames(parms) <- var_names$vals
+
+restom_vals_sim <- df %>%
+  filter(type == 'sim') %>%
+  arrange(sim_run) %>%
+  pull(value)
+
+restom_bins <- findInterval(restom_vals_sim, vec = quantile(restom_vals_sim, seq(0, 1, by = .1)))
+
+palette <- scales::viridis_pal(100) 
+pairs(parms, col = viridis(10, option = "D")[restom_bins], cex = .4)
+pairs(parms[restom_vals_sim < 1.5 & restom_vals_sim > 0,], cex = .4, 
+      main = 'Simulation Runs with 0 < RESTOM < 1.5', )
+
+pairs(parms[restom_vals_sim < 0,], cex = .4,
+      main = 'Simulation Runs with RESTOM < 0')
+pairs(parms[restom_vals_sim > 1.5,], cex = .4,
+      main = 'Simulation Runs with RESTOM > 1.5')
+```

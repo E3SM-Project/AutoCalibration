@@ -1,0 +1,43 @@
+# Configuration files for surrogate calibration
+
+# Options for creating surrogate model
+datadir: ../../data 
+savedir: ../../models 
+
+season: DJF # DJF, MAM, JJA, SON
+
+nyear: 10 # 5, 10
+
+fields: [SWCF, LWCF, PRECT]
+
+target_type: scalar # full, zonal, scalar, custom function (not implemented yet)
+
+resolution: 24x48
+
+custom_scalar_function: 
+  file: #custom_scalar_function.py
+
+# Options for surrogate model method, e.g., ROM, neural networks, etc.
+# Not implemented yet
+surrogate:
+  fit: False
+  options:
+    method: pce
+    n_components: 16 # int, auto (90% exp. variance)
+    compute_cv_score: False
+
+# Options for optimization and Bayesian inference
+# (Not implemented yet)
+calibration:
+  optimize:
+    MLE: True
+    MLE_msigma: False
+    MAP: True
+    options: 
+      plot_diagnostics: True
+      weights: # e.g., null, [1,1,1], [1,.25,0]
+  Bayesian: 
+    MCMC: False # not implemented yet
+
+validation:
+  optimization: MLE # MLE and MAP

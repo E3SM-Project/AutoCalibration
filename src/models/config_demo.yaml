@@ -1,0 +1,62 @@
+# Configuration files for surrogate calibration
+plots_for_esco: False
+
+# Options for creating surrogate model
+datadir: ../../data 
+savedir: ../../surrogate_models 
+
+season: DJF
+
+nyear: 10 # 5, 10
+
+fields: [SWCF]
+lat_plev_fields: [T]
+global_fields: [RESTOM]
+RESTOM_target: 0.7
+
+target_type: full # full, zonal, scalar, custom function
+target_source: # automatically obs, can put ctrl in
+
+resolution: 24x48
+
+subtract_ens_mean: False
+
+custom_scalar_function: 
+  file: #custom_functions/custom_scalar_function.py
+
+custom_scalar_plev_function:
+  file: #custom_functions/custom_scalar_plev_function.py
+
+
+custom_surrogate_fit_function:
+  file: #custom_functions/custom_surrogate_fit_function.py
+# Options for surrogate model method, e.g., ROM, neural networks, etc.
+# Not implemented yet
+surrogate:
+  fit: True
+  options:
+    method: pce-rom
+    n_components: 16 # int, auto (90% exp. variance)
+    compute_cv_score: True
+    compute_raw_cv_scores: False
+    save_predictions: True
+    save_pcs: True
+
+# Options for optimization and Bayesian inference
+calibration:
+  optimize:
+    method: MAP # MAP, MLE, MLE_msigma
+    options: 
+      plot_diagnostics: False
+      use_weights: No  # "season_field" to use variable and season weights for season = ALL, or manual to use weights for each field. "No" defaults to automatic weighting (sigma). 
+      variable_weights: [1,1,1,1,1,1,1,1,1,1,1,1] # 
+      season_weights: [1,1,1,1]
+      weights: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]# Length is total number of fields. <-- Manual setting. 
+
+# Cross validation score for surrogate and predicts error for optimized run relative to obs. 
+validation:
+  surrogate: True
+  e3sm: False
+  optimization: MAP # MLE, MAP
+  plot: True
+  plot_options: surrogate # e3sm, surrogate, both

@@ -1,0 +1,820 @@
+---
+title: "Exploratory Data Analysis for Calibration"
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 4
+    number_sections: true
+editor_options: 
+  chunk_output_type: console
+params:
+  variable: 'SWCF_LWCF_PRECT_PSL_Z500_U200_U850_TREFHT_U_RELHUM_T_RESTOM_0.7'
+  resolution: '180x360'
+  nyears: '10yr'
+  season: 'DJF'
+  type: 'lat_lon'
+  subtract: 'raw'
+  n_components: 16
+---
+
+\pagebreak
+
+# Preliminaries
+
+Load in packages and information on what document we are making.
+```{r setup, message = FALSE}
+library(knitr)
+knitr::opts_chunk$set(cache=F, dev = 'png', warning = FALSE, echo = FALSE,
+                      message = FALSE, cache.lazy = FALSE)
+library(ncdf4)
+library(fields)
+print(unlist(params))
+variable <- params[['variable']]
+variables <- strsplit(variable, '_')[[1]]
+if ('RESTOM' %in% variables) {
+  variables <- variables[-length(variables)]
+}
+variable_types <- c('SWCF' = 'lat_lon', 
+                    'LWCF' = 'lat_lon',
+                    'PRECT' = 'lat_lon',
+                    'PSL' = 'lat_lon',
+                    'Z500' = 'lat_lon',
+                    'U200' = 'lat_lon',
+                    'U850' = 'lat_lon',
+                    'TREFHT' = 'lat_lon',
+                    'U' = 'lat_plev',
+                    'T' = 'lat_plev',
+                    'RELHUM' = 'lat_plev',
+                    'RESTOM' = 'global')
+unique_variable_types  <-  unique(variable_types[variables])
+variables_plev <- variables[variable_types[variables] == 'lat_plev']
+variables_lon <- variables[variable_types[variables] == 'lat_lon']
+variables_global <- variables[variable_types[variables] == 'global']
+n_plev_vars  <- length(variables_plev)
+n_lon_vars  <- length(variables_lon)
+
+res_vals_lon <- as.numeric(strsplit(params[['resolution']], 'x')[[1]])
+res_vals_plev <- c(24, 37)
+nvar <- length(variables)
+if (nvar == 3) {
+  plot_dim_im = list(mfrow=c(2,2), mar= 4*c(0.5, 0.5, 0.5, 0.5))
+  plot_dim = list(mfrow=c(2,2), mar= 8*c(0.5, 0.5, 0.5, 0.5))
+} else if (nvar == 1) {
+  plot_dim_im = list(mfrow=c(1,1))
+  plot_dim = list(mfrow=c(1,1))
+} else  if (nvar == 8) {
+  plot_dim_im = list(mfrow=c(3,3), mar= 4*c(0.5, 0.5, 0.5, 0.5))
+  plot_dim = list(mfrow=c(3,3), mar= 4*c(0.5, 0.5, 0.5, 0.5))
+}
+```
+
+## Load model outputs
+
+```{r}
+# get simulation runs created by Kenny's code
+if (params[['season']] == 'ALL') {
+  eg <- expand.grid(variables[variables != 'RESTOM'], c('DJF', 'MAM', 'JJA', 'SON'),
+                    stringsAsFactors = F)
+  if ('RESTOM' %in% variables) {
+    eg <- rbind(eg, c('RESTOM', 'ANN'))
+  }
+  variables_vec <- as.character(eg[,1])
+  seasons_vec <- eg[,2]
+  variables <- sprintf('%s: %s', eg[,1], eg[,2])
+  n_plev_vars  <- sum(variable_types[variables_vec] == 'lat_plev')
+  n_lon_vars  <- sum(variable_types[variables_vec] == 'lat_lon')
+  nvar <- n_plev_vars + n_lon_vars + 
+    'RESTOM' %in% variables
+} else {
+  seasons_vec <- rep(params[['season']], nvar)
+  variables_vec <- variables
+}
+misc_runs <- c('0522', '8fields_ALL_24x48', '8fields_ANN_24x48', 
+               '11fields_ALL_24x48')
+
+data_frame_list <- list()
+sim_tensor <- array(dim = c(180, 360, 250, 8, 4))
+#sur_tensor <- array(dim = c(180, 360, 250, 8, 4))
+data_frame_pcs_list <- list()
+
+for (j in 1:length(unique_variable_types)) {
+    surr_file <- nc_open(paste0('surrogate_models/pred_',params[['season']], '_',  params[['nyears']], '_obs_full_', params[['resolution']], '_', params[['n_components']], '_',  params[['variable']], '_', params[['subtract']], '.nc'))
+    
+    # load principal components
+    pc_file <- nc_open(paste0('surrogate_models/pcs_',params[['season']], '_',  params[['nyears']], '_obs_full_',
+                          params[['resolution']], '_', params[['n_components']], '_',  params[['variable']], '_', params[['subtract']], '.nc'))
+    pc_scores_model <- ncvar_get(pc_file, 'pc_scores_model')
+    pc_scores_surr <- ncvar_get(pc_file, 'pc_scores_surr')
+    pc_scores_obs <- ncvar_get(pc_file, 'pc_scores_obs')
+    pc_vals <- ncvar_get(pc_file, 'pc_vals')
+    pc_prop_var <- ncvar_get(pc_file, 'prop_var')
+    ev <- ncvar_get(pc_file, 'ev')
+    sing_vals <- ncvar_get(pc_file, 'sing_vals')
+    nc_close(pc_file)
+    
+    variables_use <- variables_vec[variable_types[variables_vec] == unique_variable_types[j]]
+    seasons_use <- seasons_vec[variable_types[variables_vec] == unique_variable_types[j]]
+    if (unique_variable_types[j] == 'global') {
+          vals_use <- ncvar_get(surr_file, 'values')
+    data_frame_list[[length(data_frame_list) + 1]] <- data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'surr', 
+               sim_run = as.character(1:250), variable = 'RESTOM', res = NA,
+               value = vals_use[nrow(vals_use),]) 
+    nc_close(surr_file)
+      sim_file <- nc_open(paste0('data/lat_lon_', params[['nyears']], 
+                                 '_180x360_', seasons_use, '.nc'))
+      FLNT <- ncvar_get(sim_file, 'FLNT')
+      FSNT <- ncvar_get(sim_file, 'FSNT')
+      area <- ncvar_get(sim_file, 'area')
+      area_norm <-  area/sum(area) * 250
+      RESTOM <- apply(area_norm * (FSNT - FLNT),3, sum)
+      data_frame_list[[length(data_frame_list) + 1]] <- data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'sim', 
+                                                                 sim_run = as.character(1:250), variable = 'RESTOM', res = NA,
+                                                                 value = RESTOM) 
+      ctrl_file <- nc_open(paste0('data/lat_lon_', params[['nyears']], '_180x360_', 
+                           seasons_use, '_ctrl.nc'))
+      FLNT <- ncvar_get(ctrl_file, 'FLNT')
+      FSNT <- ncvar_get(ctrl_file, 'FSNT')
+      area <- ncvar_get(ctrl_file, 'area')
+      nc_close(ctrl_file)
+      area_norm <-  area/sum(area) 
+      RESTOM_ctrl <- sum(area_norm * (FSNT - FLNT))
+      data_frame_list[[length(data_frame_list) + 1]] <- data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = 'ctrl', 
+                       sim_run = NA, variable = 'RESTOM', res = NA, value = RESTOM_ctrl)
+      
+      RESTOM_misc <- rep(0, length(misc_runs))
+      for (r in 1:length(misc_runs)) {
+        misc_file <- nc_open(paste0('data/lat_lon_10yr_180x360_ANN_miscsim_',
+                                  misc_runs[r], '.nc'))
+        FLNT <- ncvar_get(misc_file, 'FLNT')
+        FSNT <- ncvar_get(misc_file, 'FSNT')
+        area <- ncvar_get(misc_file, 'area')
+        area_norm <-  area/sum(area) 
+        RESTOM_misc[r] <- sum(area_norm * (FSNT - FLNT))
+        nc_close(misc_file)
+      }
+      names(RESTOM_misc) <- misc_runs
+      data_frame_list[[length(data_frame_list) + 1]] <- data.frame('season' = NA, lon = NA, lat = NA, plev  = NA, type  = misc_runs,
+                       sim_run = NA, variable = 'RESTOM', res = NA, value = RESTOM_misc)
+      # PCs
+      data_frame_pcs_list[[length(data_frame_pcs_list) + 1]] <- 
+         data.frame('season' = 'ANN', lon = NA, lat = NA, plev  = NA, pc = 1:(dim(pc_vals)[2]),
+                    variable = 'RESTOM', res = q,
+                   value = as.vector(pc_vals[nrow(pc_vals),]) )
+      next
+    }
+    for (q in c('24x48', '180x360')) {
+      if (unique_variable_types[j] == 'lat_plev' & q == '180x360') {
+        next
+      } #else if (unique_variable_types[j] == 'lat_plev') {
+      #  q = '24x37'
+      #}
+      for (i in 1:length(variables_use)) {
+      sim_file <- nc_open(paste0('data/', unique_variable_types[j], '_', params[['nyears']], '_',
+                           q, '_', 
+                           seasons_use[i], '.nc'))
+      obs_file <- nc_open(paste0('data/', unique_variable_types[j], '_',  q, '_', seasons_use[i], '_obs.nc'))
+      ctrl_file <- nc_open(paste0('data/', unique_variable_types[j], '_', params[['nyears']], '_', 
+                            q, '_', seasons_use[i], '_ctrl.nc'))
+      if (unique_variable_types[j] == 'lat_lon') {
+        lon <- sim_file[['dim']][['lon']][['vals']]
+        lat <- sim_file[['dim']][['lat']][['vals']]
+        lat_rep <- lat_surr_rep <- rep(lat, each = length(lon))
+        plev <- plev_surr <- NA
+        sim_run <- rep(1:250, each = length(lon) * length(lat)) 
+        indexes_use  <- list(1:length(lon), 1:length(lat))
+        indexes_variable_all <- (1 + (i-1)*prod(res_vals_lon)):
+    (i*prod(res_vals_lon))
+        if (q == params[['resolution']]) {
+          surr_pred <- ncvar_get(surr_file, 'values')[indexes_variable_all,]
+        }
+        pcs_use <- pc_vals[indexes_variable_all,]
+      } else {
+        mask <- ncvar_get(surr_file, 'mask')
+        plev <- sim_file[['dim']][['plev']][['vals']]
+        lon <- NA
+        lat <- sim_file[['dim']][['lat']][['vals']]
+        lat_surr_rep <- rep(lat, each =  length(plev))
+        plev_surr <-  plev
+        lat_rep <- lat
+        plev <- rep(plev, each = length(lat_rep))
+        sim_run <- rep(1:250, each = length(plev_surr) * length(lat)) 
+        indexes_variable_all <- (1 + n_lon_vars*(res_vals_lon[2] * res_vals_lon[1]) +
+                                    sum(mask[,1:i]) - sum(mask[,i])):
+    (n_lon_vars*(res_vals_lon[2] * res_vals_lon[1]) + sum(mask[,1:i]))
+        surr_pred_prelim <- ncvar_get(surr_file, 'values')[indexes_variable_all,]
+        surr_pred <- matrix(NA, nrow = prod(res_vals_plev), ncol = 250)
+        surr_pred[as.logical(mask[,i]), ] <- surr_pred_prelim
+        
+        pcs_prelim <- pc_vals[indexes_variable_all,]
+        pcs_use <- matrix(NA, nrow = prod(res_vals_plev), ncol = 16)
+        pcs_use[as.logical(mask[,i]), ] <- pcs_prelim
+      }
+      # simulations
+      if (q != '180x360') {
+        data_frame_list[[length(data_frame_list) + 1]] <- 
+       data.frame('season' = seasons_use[i], lon, lat = lat_rep, plev, type  = 'sim', sim_run = as.character(sim_run), variable = variables_use[i], 
+                  res = q,
+                   value = as.vector(ncvar_get(sim_file, variables_use[i])))
+      } else {
+        sim_tensor[,, ,which(variables_lon == variables_use[i]),which(levels(seasons_use) == seasons_use[i])] <- ncvar_get(sim_file, variables_use[i])
+      }
+      
+      # surrogate
+      if (params[['resolution']] == q) {
+              data_frame_list[[length(data_frame_list) + 1]] <- 
+        data.frame('season' = seasons_use[i], lon = (lon), lat = (lat_surr_rep), plev  = (plev_surr), type  = 'surr', 
+                   sim_run = as.character(sim_run), variable = variables_use[i], res = q,
+                   value = as.vector(surr_pred)) 
+      }
+
+      # obs
+      data_frame_list[[length(data_frame_list) + 1]] <- 
+        data.frame('season' = seasons_use[i], lon = (lon), lat = (lat_rep), 
+                   plev = (plev), type  = 'obs',  sim_run =NA, variable = variables_use[i], res = q,
+                   value =  as.vector(ncvar_get(obs_file, variables_use[i])))
+      
+      # ctrl
+      data_frame_list[[length(data_frame_list) + 1]] <- 
+        data.frame('season' = seasons_use[i],lon = (lon), lat = (lat_rep), 
+                   plev = (plev), type = 'ctrl', sim_run =NA, variable = variables_use[i], res = q,
+                   value =  as.vector(ncvar_get(ctrl_file, variables_use[i])))
+      # misc
+      for (k in 1:length(misc_runs)) {
+        misc_file <- nc_open(paste0('data/', unique_variable_types[j], '_', params[['nyears']], '_', 
+                        q, '_',seasons_use[i], '_miscsim_', misc_runs[k], '.nc'))
+        data_frame_list[[length(data_frame_list) + 1]] <- 
+          data.frame('season' = seasons_use[i], lon = (lon), lat = (lat_rep), 
+                   plev = (plev), type = misc_runs[k], sim_run =NA, variable = variables_use[i], res = q,
+                   value =as.vector(ncvar_get(misc_file, as.character(variables_use[i]))))
+        nc_close(misc_file)
+      }
+      lhs <- base::t(ncvar_get(sim_file, 'lhs'))
+      input_variables <- ncvar_get(sim_file, 'x')
+      nc_close(sim_file)
+      nc_close(obs_file)
+      nc_close(ctrl_file)
+      
+                #pc values
+      if (q == params[['resolution']])
+    data_frame_pcs_list[[length(data_frame_pcs_list) + 1]] <- 
+         data.frame('season' = seasons_use[i], lon, lat = lat_surr_rep, plev  = plev_surr, pc = rep(1:(dim(pc_vals)[2]), each = length(lat_surr_rep)),
+                    variable = variables_use[i], res = q,
+                   value = as.vector(pcs_use) )
+    }
+    }
+    
+  }
+df <- dplyr::bind_rows(data_frame_list)
+
+colnames(lhs) <- input_variables
+```
+
+## Load area file for weighting
+```{r}
+area_file <- nc_open(paste0('surrogate_models/area_24x48.nc'))
+area <- ncvar_get(area_file, 'values')
+sim_file_test <- nc_open(paste0('data/lat_lon_', params[['nyears']], '_24x48_', 
+                           'ANN', '.nc'))
+
+area_lat <- sim_file_test$dim$lat$vals
+area_lon <- sim_file_test$dim$lon$vals
+area_norm <- area/mean(area)
+nc_close(area_file)
+nc_close(sim_file_test)
+
+area_df <- data.frame(area_wt = as.vector(area_norm),
+                      lat = rep(area_lat, each=  length(area_lon)), 
+                      lon = area_lon, 
+                      res = '24x48')
+area_file <- nc_open(paste0('surrogate_models/area_180x360.nc'))
+area <- ncvar_get(area_file, 'values')
+sim_file_test <- nc_open(paste0('data/lat_lon_', params[['nyears']], '_180x360_', 
+                           'ANN', '.nc'))
+
+area_lat <- sim_file_test$dim$lat$vals
+area_lon <- sim_file_test$dim$lon$vals
+area_norm <- area/mean(area)
+nc_close(area_file)
+nc_close(sim_file_test)
+area_df2 <- data.frame(area_wt = as.vector(area_norm),
+                      lat = rep(area_lat, each=  length(area_lon)), 
+                      lon = area_lon, 
+                      res = '180x360')
+area_df <- rbind(area_df, area_df2)
+
+```
+
+
+## Subtract the ensemble mean if necessary
+
+If we ran the surrogate after subtracting the ensemble mean, adjust the simulation output and the observations accordingly. 
+
+```{r}
+library(dplyr)
+sim_avg <- df  %>%
+  filter(type == 'sim') %>%
+  group_by(lon, lat, plev, res) %>%
+  summarize(mv = mean(value))
+df <- left_join(df, sim_avg)
+if (params[['subtract']] == 'ensmean') {
+  df[['value']][df[['type']] != 'surr'] <- df[['value']][df[['type']] != 'surr'] -
+    df[['mv']][df[['type']] != 'surr']
+}
+```
+
+
+# A few initial plots just to get the feel of things
+
+## The observational fields
+```{r, dpi = 144}
+library(purrr)
+library(cowplot)
+library(ggplot2)
+df %>% 
+  filter(type == 'obs', !is.na(lon), res == '24x48') %>%
+  group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(lon, lat, fill = value)) + 
+      geom_raster() +
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank(),
+                         axis.text = element_blank(),
+                         legend.key.size = unit(.5, "lines"),
+                         legend.margin=margin(0,0,0,0),
+                         legend.box.margin=margin(-10,-10,-10,-10),
+                         legend.text = element_text(size = 5))
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+
+
+df %>% 
+  filter(type == 'obs', !is.na(lon), res == '180x360') %>%
+  group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(lon, lat, fill = value)) + 
+      geom_raster() +
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank(),
+                         axis.text = element_blank(),
+                         legend.key.size = unit(.5, "lines"),
+                         legend.margin=margin(0,0,0,0),
+                         legend.box.margin=margin(-10,-10,-10,-10),
+                         legend.text = element_text(size = 5))
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+
+plevels <- unique(df$plev)[!is.na(unique(df$plev))]
+plevels_df <- data.frame(plev = plevels, 
+                      plev_lower = lead(plevels))
+plevels_df$plev_lower[is.na(plevels_df$plev_lower)] <- 0
+
+lats <- unique(df$lat)
+lat_lag <- lats[2] - lats[1]
+lats_df <- data.frame(lat = lats,
+                      lat_higher = lats + lat_lag/2, 
+                      lat_lower = lats - lat_lag/2)
+
+df %>% 
+  filter(type == 'obs', !is.na(plev)) %>%
+  left_join(plevels_df) %>%
+  left_join(lats_df) %>% 
+  group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(ymin = plev_lower, ymax = plev, xmin = lat_lower, xmax = lat_higher, color = value, fill = value)) + 
+      geom_rect() +
+      scale_color_gradientn(colors = rainbow(10)) + 
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      scale_y_continuous(trans = 'reverse') + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank())
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+```
+
+## One simulation run
+
+```{r, dpi = 144}
+df %>% 
+  filter(type == 'sim', !is.na(lon), sim_run == 20, res == '24x48') %>%
+  group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(lon, lat, fill = value)) + 
+      geom_raster() +
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank(),
+                         axis.text = element_blank(),
+                         legend.key.size = unit(.5, "lines"),
+                         legend.margin=margin(0,0,0,0),
+                         legend.box.margin=margin(-10,-10,-10,-10),
+                         legend.text = element_text(size = 5))
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+
+
+df %>% 
+  filter(type == 'sim', !is.na(plev), sim_run == 20) %>%
+  left_join(plevels_df) %>%
+  left_join(lats_df) %>% 
+  group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(ymin = plev_lower, ymax = plev, xmin = lat_lower, xmax = lat_higher, color = value, fill = value)) + 
+      geom_rect() +
+      scale_color_gradientn(colors = rainbow(10)) + 
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      scale_y_continuous(trans = 'reverse') + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank())
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+```
+
+## The surrogate output
+
+```{r, dpi = 144}
+df %>% 
+  filter(type == 'surr', !is.na(lon), sim_run == 20, res == '24x48') %>%
+  group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(lon, lat, fill = value)) + 
+      geom_raster() +
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank(),
+                         axis.text = element_blank(),
+                         legend.key.size = unit(.5, "lines"),
+                         legend.margin=margin(0,0,0,0),
+                         legend.box.margin=margin(-10,-10,-10,-10),
+                         legend.text = element_text(size = 5))
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+
+
+df %>% 
+  filter(type == 'surr', !is.na(plev), sim_run == 20) %>%
+  left_join(plevels_df) %>%
+  left_join(lats_df) %>% 
+  group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(ymin = plev_lower, ymax = plev, xmin = lat_lower, xmax = lat_higher, color = value, fill = value)) + 
+      geom_rect() +
+      scale_color_gradientn(colors = rainbow(10)) + 
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      scale_y_continuous(trans = 'reverse') + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank())
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+```
+
+## Simulation run minus surrogate
+
+```{r, dpi = 144}
+df %>%
+  filter(type == 'surr', !is.na(lon), sim_run == 20, res == '24x48') %>%
+  left_join(filter(df, type == 'sim', !is.na(lon), sim_run == 20), by = c('season',  'lon', 'lat','plev', 'sim_run', 'variable')) %>%
+    group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(lon, lat, fill = value.y - value.x)) + 
+      geom_raster() +
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank(),
+                         axis.text = element_blank(),
+                         legend.key.size = unit(.5, "lines"),
+                         legend.margin=margin(0,0,0,0),
+                         legend.box.margin=margin(-10,-10,-10,-10),
+                         legend.text = element_text(size = 5))
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+
+df %>%
+  filter(type == 'surr', !is.na(plev), sim_run == 20) %>%
+  left_join(filter(df, type == 'sim', !is.na(plev), sim_run == 20), by = c('season',  'lon', 'lat','plev', 'sim_run', 'variable')) %>%
+  left_join(plevels_df) %>%
+  left_join(lats_df) %>% 
+  group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(ymin = plev_lower, ymax = plev, xmin = lat_lower, xmax = lat_higher, color = value.y - value.x, fill = value.y - value.x)) + 
+      geom_rect() +
+      scale_color_gradientn(colors = rainbow(10)) + 
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      scale_y_continuous(trans = 'reverse') + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank())
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+```
+
+```{r, dpi = 144}
+library(rcolors)
+WBGYR <- rcolors:: get_color('WhiteBlueGreenYellowRed', n = NULL)
+df %>%
+  filter(type %in% c('surr', 'sim'), !is.na(lon), sim_run == 20, res == '24x48', variable == 'PRECT', season == 'JJA') %>%
+  left_join(data.frame(type = c('surr', 'sim'), 
+                       type_label = factor(c('Surrogate prediction', 
+                                             'E3SM output')))) %>%
+  ggplot(aes(ifelse(lon > 180, lon - 360, lon), lat, fill = value)) + 
+      geom_raster() +
+  geom_polygon(data = map_data('world'),
+               aes(x = long, y = lat, group = group),
+               fill = NA, color = 'gray70', size = .1) + 
+  coord_quickmap() + 
+  scale_x_continuous(breaks = c(-180, -90, 0, 90, 180)) +
+  scale_y_continuous(breaks = c(-90, -60, -30, 0, 30, 60, 90)) + 
+      scale_fill_gradientn(colours = WBGYR) + 
+      facet_wrap(~type_label, ncol = 2)+
+  theme_bw() +
+  theme( strip.background = element_blank(),
+         strip.text.x = element_blank(),
+         legend.position = 'bottom') + 
+  labs(x = 'Longitude', y = 'Latitude',
+       fill = 'PRECT\n(mm/day)')
+ggsave(paste0('src/eda/paper_plots/', params[['variable']], '_prect_JJA.png'),
+       width = 10, height = 4)
+BrBG <- rcolors:: get_color('BrBG', n = NULL)
+prelim_df <- df %>%
+  filter(type %in% c('surr', 'sim'), !is.na(lon), sim_run == 20, res == '24x48', variable == 'PRECT', season == 'JJA') %>%
+  tidyr::pivot_wider(names_from = type, values_from = value) %>%
+  mutate(diff  = sim - surr)
+ggplot(data = prelim_df, aes(ifelse(lon > 180, lon - 360, lon), lat, fill = diff)) + 
+      geom_raster() +
+  geom_polygon(data = map_data('world'),
+               aes(x = long, y = lat, group = group),
+               fill = NA, color = 'gray70', size = .1) + 
+  coord_quickmap() + 
+  scale_x_continuous(breaks = c(-180, -90, 0, 90, 180)) +
+  scale_y_continuous(breaks = c(-90, -60, -30, 0, 30, 60, 90)) + 
+  scale_fill_gradientn(colors = BrBG, limits = c(-max(abs(prelim_df$diff)), max(abs(prelim_df$diff))) ) + 
+  theme_bw() +
+  labs(x = 'Longitude', y = 'Latitude',
+       fill = 'PRECT\n(mm/day)')
+ggsave(paste0('src/eda/paper_plots/', params[['variable']], '_prect_JJA_diff.png'),
+       width = 5.5, height = 2.5)
+
+
+
+df %>%
+  filter(type == 'surr', !is.na(plev), sim_run == 20) %>%
+  left_join(filter(df, type == 'sim', !is.na(plev), sim_run == 20), by = c('season',  'lon', 'lat','plev', 'sim_run', 'variable')) %>%
+  left_join(plevels_df) %>%
+  left_join(lats_df) %>% 
+  group_split(variable) %>% 
+  map(
+    ~ggplot(., aes(ymin = plev_lower, ymax = plev, xmin = lat_lower, xmax = lat_higher, color = value.y - value.x, fill = value.y - value.x)) + 
+      geom_rect() +
+      scale_color_gradientn(colors = rainbow(10)) + 
+      scale_fill_gradientn(colors = rainbow(10)) + 
+      scale_y_continuous(trans = 'reverse') + 
+      facet_wrap(~ variable + season, labeller = function(x) label_value(x, multi_line = FALSE))+
+                   theme(legend.title = element_blank(),
+                         axis.title = element_blank(),
+                         axis.ticks = element_blank())
+  ) %>% 
+  plot_grid(plotlist = ., align = 'hv')
+```
+
+
+## A plot at one location of the variable over the 250 runs
+
+```{r, dpi = 144}
+df_temp <- df  %>% filter(!is.na(lon), res == '24x48') %>% filter(lon == lon[20], lat == lat[20]) %>%
+         mutate(sim_run = ifelse(is.na(as.numeric(sim_run)), 0, as.numeric(sim_run)))
+  ggplot() + 
+      geom_point(data= filter(df_temp, type %in% c('sim', 'surr')), aes(sim_run, y = value, color = type), size = .5) +
+      geom_point(data = filter(df_temp, !(type %in% c('sim', 'surr'))), aes(sim_run, y = value, color = type), size = 2) +
+      facet_grid(variable~ season, labeller = function(x) label_value(x, multi_line = FALSE), scales = 'free_y') +  
+  labs(size = 'Size')
+  
+  
+  df_temp <- df  %>% filter(!is.na(plev)) %>% filter(plev == plev[20], lat == lat[20]) %>%
+         mutate(sim_run = ifelse(is.na(as.numeric(sim_run)), 0, as.numeric(sim_run)))
+  ggplot() + 
+      geom_point(data= filter(df_temp, type %in% c('sim', 'surr')), aes(sim_run, y = value, color = type), size = .5) +
+      geom_point(data = filter(df_temp, !(type %in% c('sim', 'surr'))), aes(sim_run, y = value, color = type), size = 2) +
+      facet_grid(variable~ season, labeller = function(x) label_value(x, multi_line = FALSE), scales = 'free_y') +  
+  labs(size = 'Size')
+
+```
+
+# Compute R-squared at each location
+
+
+Instead of averaging over locations, what if we average over simulation runs and see how well we capture between-simulation variability at each location. 
+
+Formally, let $Y_i^{(\tau)}$ be the $i$-th location for the $\tau$-th simulation run. We take \begin{align*}
+R^2(i) &= 1 - \frac{\frac{1}{250}\sum_{\tau=1}^{250}\left(Y_i^{(\tau)} - \hat{Y}_i^{(\tau)}\right)^2}{\frac{1}{250}\sum_{\tau=1}^{250}\left(Y_i^{(\tau)} - \overline{Y}_i\right)^2}
+\end{align*}where $\overline{Y}_i = \frac{1}{250}\sum_{\tau=1}^{250} Y_i^{(\tau)}$.
+
+```{r, dpi = 144}
+surr_minus_sim <- df %>%
+  dplyr::filter(res == '24x48', type %in% c('surr', 'sim')) %>%
+  tidyr::pivot_wider(names_from = 'type') %>%
+  mutate(surr_minus_sim = surr - sim) %>%
+  left_join(area_df)
+MSE <- surr_minus_sim %>%
+  dplyr::filter(!is.na(lon)) %>%
+  group_by(sim_run, variable,  season) %>%
+  summarize(surr_error = mean(area_wt * (surr_minus_sim)^2),
+            mean_error = mean(area_wt * (sim - mean(sim))^2))
+MSE_loc <- surr_minus_sim %>%
+  group_by(lat, lon, plev, variable,season) %>%
+  summarize(surr_error = mean(surr_minus_sim^2),
+            mean_error = mean((sim - mean(sim))^2),
+            r2 = 1 - surr_error/mean_error)
+library(cetcolor)
+cet_perp_unif <- cetcolor::cet_pal('r2')
+MSE_loc %>%
+  filter(!is.na(lon)) %>%
+  ggplot(aes(x= ifelse(lon > 180, lon - 360, lon), y  = lat, fill = r2)) +
+  geom_raster() +
+  geom_polygon(data = map_data('world'),
+               aes(x = long, y = lat, group = group),
+               fill = NA, color = 'gray10', size = .07) + 
+  #scale_fill_viridis_c(limits = c(0,1)) + 
+  scale_fill_gradientn(limits = c(0,1), colors = cet_perp_unif) + 
+  coord_quickmap() + 
+  facet_grid(variable~season) + 
+  theme_bw() + 
+  labs(x = 'Longitude', y = 'Latitude', fill = 'R-squared') +
+  scale_x_continuous(breaks = c(-180, -90, 0, 90)) +
+  scale_y_continuous(breaks = c(-90, -45, 0, 45, 90)) + 
+  theme(axis.text = element_text(size = 8),
+        legend.position = 'bottom')
+ggsave(paste0('src/eda/paper_plots/', params[['variable']], '_r2_lat_lon.png'),
+       width = 6, height = 7)
+
+MSE_loc %>%
+  filter(!is.na(lon), variable %in% c('PRECT', 'LWCF', 'U200')) %>%
+  ggplot(aes(x= ifelse(lon > 180, lon - 360, lon), y  = lat, fill = r2)) +
+  geom_raster() +
+  geom_polygon(data = map_data('world'),
+               aes(x = long, y = lat, group = group),
+               fill = NA, color = 'gray10', size = .07) + 
+  #scale_fill_viridis_c(limits = c(0,1)) + 
+  scale_fill_gradientn(limits = c(0,1), colors = cet_perp_unif) + 
+  coord_quickmap() + 
+  facet_grid(variable~season) + 
+  theme_bw() + 
+  labs(x = 'Longitude', y = 'Latitude', fill = 'R-squared') +
+  scale_x_continuous(breaks = c(-180, -90, 0, 90)) +
+  scale_y_continuous(breaks = c(-90, -45, 0, 45, 90)) + 
+  theme(axis.text = element_text(size = 8),
+        legend.position = 'bottom')
+ggsave(paste0('src/eda/paper_plots/', params[['variable']], '_r2_lat_lon_reduced.png'),
+       width = 6, height = 3.75)
+
+MSE_loc %>%
+  filter(!is.na(plev)) %>%
+  left_join(plevels_df) %>%
+  left_join(lats_df) %>%
+ggplot(., aes(ymin = plev_lower/100, ymax = plev/100, xmin = lat_lower, xmax = lat_higher, color = r2, fill = r2)) + 
+      geom_rect() +
+    scale_fill_gradientn(limits = c(0,1), colors = cet_perp_unif) + 
+    scale_color_gradientn(limits = c(0,1), colors = cet_perp_unif) + 
+  #scale_fill_viridis_c(limits = c(0,1)) + 
+  #scale_color_viridis_c(limits = c(0,1)) + 
+  facet_grid(variable~season) + 
+  theme_bw() + 
+  labs(x = 'Latitude', y = 'Pressure (hPa)', fill = 'R-squared', color = 'R-squared') +
+  scale_y_continuous(trans = 'reverse') + 
+  scale_x_continuous(breaks = c(-90, -45, 0, 45, 90)) + 
+  theme(axis.text = element_text(size = 8), legend.position = 'bottom')
+ggsave(paste0('src/eda/paper_plots/', params[['variable']], '_r2_lat_plev.png'),
+       width = 6, height = 7.5/2)
+
+
+
+if ('RESTOM' %in% unique(df[['variable']])) {
+  df_restom <- df %>%
+    filter(variable == 'RESTOM') %>%
+    filter(type %in% c('surr', 'sim')) %>%
+           tidyr::pivot_wider(names_from = type, values_from = value, 
+                              id_cols = c('season', 'lon', 'lat', 'plev', 'sim_run', 'variable', 'res'))
+  r2_restom <- summary(lm(surr~sim, data = df_restom))$r.squared
+  
+  ggplot(data = df_restom,
+         aes(x = sim , y = surr)) + 
+    geom_point(size = .5) + 
+    geom_abline(intercept = 0, slope = 1) + 
+    geom_smooth(se = F, method = 'lm', size = .5) + 
+    theme_bw() + 
+    annotate(geom = 'text', x = 2.5, y = -1, label = paste0('R-squared: ', round(r2_restom,3))) + 
+    labs(x = expression('E3SM output top of atmosphere energy balance (W/m'^2 *')'),
+         y = expression('Surrogate-predicted top of atmosphere energy balance (W/m'^2 *')')) + 
+    theme(axis.title = element_text(size = 9))
+  ggsave(paste0('src/eda/paper_plots/', params[['variable']], '_r2_global.png'),
+         width = 6, height = 7.5/2)
+}
+```
+
+# A look at MSE and general nature of residuals
+
+## Center the data by the observations
+```{r}
+df_obs <- df  %>%
+  filter(type == 'obs', res == '24x48') %>%
+  rename(obs = value) %>%
+  dplyr::select(-type, - sim_run)
+rm(data_frame_list)
+df_diff <- left_join(df, df_obs) %>%
+  mutate(diff = value - obs) %>%
+  left_join(area_df)
+```
+
+
+```{r, dpi = 288, fig.height = 16, fig.width = 15}
+df_mse  <- df_diff %>%
+  mutate(area_wt = ifelse(is.na(area_wt), 1, area_wt)) %>%
+  group_by(season, variable, type, sim_run) %>%
+  summarize(mse = mean(area_wt*diff^2, na.rm = T)) %>%
+  filter(type != 'obs') %>% 
+  ungroup()
+ 
+
+ggplot() + 
+  geom_point(data = df_mse %>% filter(!(type %in% c('sim', 'surr'))), aes(x = type,y = sqrt(mse), color =type), size = 2) + 
+  geom_boxplot(data = df_mse %>% filter(type == 'sim'), aes(x = type,y = sqrt(mse)), width = .5) +
+  theme(axis.text.x = element_text(angle = 90), legend.position = 'right',
+        text = element_text(size = 16))+
+  geom_hline(data = df_mse %>% filter(type == 'ctrl'), aes(yintercept = sqrt(mse)),
+             size = .2, color = 'black') +
+  labs(x = 'Type', y = 'RMSE', color = 'Type')+
+  facet_grid(variable~season, scales = 'free_y')
+```
+
+# Look at the input parameters
+
+```{r, dpi = 144, include=F, eval=F}
+gc()
+sim_minus_obs <- df %>%
+  dplyr::filter(type == 'sim', variable != 'RESTOM') %>%
+  left_join(df_obs) %>%
+  mutate(diff = value - obs) %>%
+  left_join(area_df)
+MSE_obs <- sim_minus_obs %>%
+  mutate(area_wt = ifelse(is.na(area_wt), 1, area_wt))  %>%
+  group_by(sim_run, variable) %>%
+  summarize(obs_error = mean(area_wt * (diff)^2,  na.rm = T))
+
+
+optim_df  <- left_join(MSE_obs, data.frame(sim_run = as.character(1:250),
+                                       lhs)) %>%
+  tidyr::pivot_longer(cols = c('ice_sed_ai', 'clubb_c1', 'clubb_gamma_coef',
+                               'zmconv_tau', 'zmconv_dmpdz'))
+
+ggplot(data = optim_df, aes(x = value, y = obs_error))  + 
+  geom_point(size = .35, stroke = .35) + 
+  facet_grid(variable~name, scales = 'free') +
+  labs(x = 'Parameter value', y = 'Simulation MSE compared to observations, lat/lon fields')
+
+ggplot(data = filter(optim_df, variable == 'LWCF', name %in% c('zmconv_tau', 'zmconv_dmpdz')) %>%
+         tidyr::pivot_wider(names_from = 'name', values_from = 'value'), aes(x = zmconv_tau, y = zmconv_dmpdz, color = obs_error))  + 
+  geom_point() + 
+  scale_color_viridis_c() 
+
+ggplot(data = filter(optim_df, variable == 'Z500', name %in% c('zmconv_tau', 'zmconv_dmpdz')) %>%
+         tidyr::pivot_wider(names_from = 'name', values_from = 'value'), aes(x = zmconv_tau, y = zmconv_dmpdz, color = obs_error))  + 
+  geom_point() + 
+  scale_color_viridis_c() 
+
+par(mfrow = c(1,1))
+cor_df <- optim_df %>%
+  tidyr::pivot_wider(names_from = 'name', values_from = 'value') %>%
+  tidyr::pivot_wider(names_from = 'variable', values_from = 'obs_error') %>%
+  ungroup() %>% 
+  dplyr::select(-sim_run) %>%
+  cor() %>% 
+  {data.frame(x = factor(rownames(.), levels = rownames(.)), y = factor(rep(colnames(.), each = nrow(.)), levels = colnames(.)), 
+             value = as.vector(.))}
+ggplot(data = cor_df, aes(x = x, y = y, fill = value)) +
+  geom_raster() + 
+  scale_fill_gradient2(limits = c(-1,1)) + 
+  theme(axis.text.x = element_text(angle = 270 + 45)) +
+  labs(fill  = 'Correlation')
+
+```
+
+
+
+

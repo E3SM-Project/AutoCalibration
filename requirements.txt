@@ -1,0 +1,29 @@
+# Code used to create autotuning conda environment
+
+# Get E3SM base environment
+source /lcrc/soft/climate/e3sm-unified/load_e3sm_unified_1.7.1_chrysalis.sh # for chrysalis only
+# source /global/common/software/e3sm/anaconda_envs/load_e3sm_unified_1.8.0_pm-cpu.sh # for perlmutter only
+
+# probably not needed, just because I installed tesuract before using conda
+export PYTHONNOUSERSITE=1
+
+# clone E3SM environment
+conda create --name autotuning --clone e3sm_unified_1.7.1_chrysalis
+# conda create --name autotuning --clone e3sm_unified_1.8.0_nompi
+conda activate autotuning  
+
+# install remaining packages
+~/.conda/envs/autotuning/bin/pip install tesuract
+#~/.conda/envs/autotuning/bin/pip install clif
+git clone https://github.com/sandialabs/clif ~/clif
+~/.conda/envs/autotuning/bin/pip install ~/clif/
+~/.conda/envs/autotuning/bin/pip install prettytable
+~/.conda/envs/autotuning/bin/pip install emcee
+~/.conda/envs/autotuning/bin/pip install tools
+~/.conda/envs/autotuning/bin/pip install corner
+~/.conda/envs/autotuning/bin/pip install h5py
+
+# save environment
+conda env export > autotuning_environment.yml
+conda list --explicit > autotuning_spec_file.txt
+

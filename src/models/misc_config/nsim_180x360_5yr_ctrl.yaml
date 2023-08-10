@@ -1,0 +1,61 @@
+# Configuration files for surrogate calibration
+plots_for_esco: False
+
+# Options for creating surrogate model
+datadir: ../../data 
+savedir: ../../surrogate_models/nsim_test_ctrl
+
+season: ALL # DJF, MAM, JJA, SON
+
+nyear: 5 # 5, 10
+
+fields: [SWCF, LWCF, PRECT, PSL, Z500,  U200, U850, TREFHT] # [SWCF, LWCF, PRECT]
+lat_plev_fields: [U, RELHUM, T]
+global_fields: [RESTOM]
+RESTOM_target: 0.08
+
+target_type: full # full, zonal, scalar, custom function (not implemented yet)
+target_source: ctrl
+
+resolution: 180x360
+
+subtract_ens_mean: False
+
+custom_scalar_function: 
+  file: #custom_scalar_function.py
+  #  variable_weights:  [2, 1, 1]
+
+custom_scalar_plev_function:
+  file:
+
+custom_surrogate_fit_function:
+  file: #custom_surrogate_fit_function.py
+# Options for surrogate model method, e.g., ROM, neural networks, etc.
+# Not implemented yet
+surrogate:
+  fit: True
+  options:
+    method: pce
+    n_components: 16 # int, auto (90% exp. variance)
+    compute_cv_score: True
+    compute_raw_cv_scores: False
+    save_predictions: False
+    save_pcs: False
+
+# Options for optimization and Bayesian inference
+# (Not implemented yet)
+calibration:
+  optimize:
+    method: MAP # MAP, MLE, MLE_msigma
+    options: 
+      plot_diagnostics: False
+      weights: # e.g., null, [1,1,1], [1,.25,0]
+  Bayesian: 
+    MCMC: False # not implemented yet
+
+validation:
+  surrogate: False
+  e3sm: False
+  optimization: MAP # MLE, MAP
+  plot: False
+  plot_options: e3sm # e3sm, surrogate, both

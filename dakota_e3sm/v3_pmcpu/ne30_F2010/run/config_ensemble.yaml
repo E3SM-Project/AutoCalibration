@@ -1,0 +1,32 @@
+
+# Benjamin M. Wagman
+
+# Configuration files for e3sm ensemble creation
+# This file must be called "config_ensemble.yaml"
+
+machine: pm-cpu # options are compy, chrysalis, pm-cpu
+
+# Ensemble settings
+ensemble_name: ne30_F2010
+#run_root: /compyfs/wagm505/E3SM_simulations/dakota/v3atm_14v/ 
+run_root: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/
+infile: templates/dakota_e3sm.lhs.in
+nsamples: 600
+
+# E3SM settings
+e3sm_code: ~/E3SM/code/20230802/  # BRANCH="wlin/atm/v3compsets_alpha02" #a9af24bb81119dbd187c00f763c36c4e3
+parent_case_dir_chry: /lcrc/group/e3sm/ac.wagman/E3SM_simulations/dakota/v3atm/ne30_F2010/ctrl/
+parent_case_dir_compy: /compyfs/wagm505/E3SM_simulations/dakota/v3atm/ne30_F2010/ctrl
+parent_case_dir_pm-cpu: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/ctrl/  
+parent_case_name_chry: 20230411.NGD_v3atm.F2010
+parent_case_name_compy: 20230411.NGD_v3atm.F2010.compy
+parent_case_name_pm-cpu: 20230802.v3alpha02.F2010.pmcpu.intel.8N
+startdate: 0001-07-01 
+stopmonths: 66
+stopmonths_p4k: 18
+
+# Not implemented
+# Zppy Settings. 
+
+
+

@@ -1,0 +1,1 @@
+/lcrc/group/e3sm/zender/maps/map_ne30pg2_to_fv129x256_nco.20200901.nc

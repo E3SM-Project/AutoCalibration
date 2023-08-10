@@ -1,0 +1,36 @@
+Benjamin M. Wagman
+bmwagma@sandia.gov
+
+Run E3SM from Dakota
+These examples create E3SM cases but do not submit the E3SM runs.
+A bundling script is included in the Chrysalis example for submitting E3SM runs. 
+
+Before running these scripts, the user must build an E3SM case, the "parent" which will be cloned by Dakota.
+Important: User must cd to the E3SM parent case
+> cd $parent_ccase
+> cp -r case_scripts/* .
+I.e., copy the case_scripts contents one dir up into the main casedir. 
+Otherwise create_clone looks for the scripts it needs in the wrong places.  
+
+To run:
+> cd ex_1.5
+1. Modify paths to your E3SM code and where you want to run. At this point paths need to be modified in both run_dakota.sh and dakota_e3sm.in 
+> run_dakota.sh
+
+### What's what: ###
+Adapted from Kenny Chowdary's example. 
+
+run_dakota.sh calls the other scripts
+
+dakota_e3sm.in instructs dakota to create the different work
+directories and run the following in each work directory:
+
+	    -run.py:        pre-process
+	    -create.csh:    calls the e3sm script create_clone
+	    -*inp.yml  created in each work directory from the template in *inp.yaml.template
+
+*-inp.yaml.template has place holders for the UQ parameters set
+in the *.in file. These place holders are designated with a double bracket,
+i.e., "{{...}}". For each work directory, Dakota replaces these variable names
+with actual numerical values.
+

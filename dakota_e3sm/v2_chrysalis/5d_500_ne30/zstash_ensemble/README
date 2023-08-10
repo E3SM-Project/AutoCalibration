@@ -1,0 +1,31 @@
+# Writes to NERSC HPSS. Simple as:
+./batch_zstash_create_5d_chr_500_ne30_individ.sh 2>&1 | tee batch_zstash_create_individ.log
+
+
+# How to run from https://acme-climate.atlassian.net/wiki/spaces/ED/pages/2309226536/Running+E3SM+step-by-step+guide#2.b.ii.-Transfer-to-NERSC
+
+$ screen # Enter screen
+$ screen -ls # Output should say "Attached"
+$ ./batch_zstash_create.bash 2>&1 | tee batch_zstash_create.log
+# Control A D to exit screen
+# DO NOT CONTROL X / CONTROL C (as for emacs). This will terminate the task running in screen!!!
+
+$ screen -ls # Output should say "Detached"
+$ hostname
+# If you log in on another login node, 
+# then you will need to ssh to this one to get back to the screen session.
+$ tail -f batch_zstash_create.log # Check log without going into screen
+# Wait for this to finish
+
+$ screen -r # Return to screen
+# Check that output ends with `real`, `user`, `sys` time information
+$ exit # Terminate screen
+
+$ screen -ls # The screen should no longer be listed
+$ ls <simulations_dir>/<case_name>/zstash
+# `index.db`, and a `zstash_create` log should be present
+# No tar files should be listed
+
+# If you'd like to know how much space the archive or entire simulation use, run:
+$ du -sh <simulations_dir>/<case_name>/zstash
+$ du -sh <simulations_dir>/<case_name>

@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Yarger"
+  given-names: "Drew"
+  orcid: "https://orcid.org/0000-0002-0420-7346"
+- family-names: "Chowdhary"
+  given-names: "Kenny"
+  orcid: "https://orcid.org/0000-0001-7815-2707"
+- family-names: "Wagman"
+  given-names: "Benjamin"
+  orcid: "https://orcid.org/0000-0001-7815-2707"
+
+title: E3SM-Project/AutoCalibration: AutoCalibration 1.0
+version: ac1.0
+doi: 10.5281/zenodo.1234
+date-released: 2023-08-25
+url: "https://github.com/E3SM-Project/AutoCalibration/"

@@ -10,7 +10,6 @@ authors:
 - family-names: "Wagman"
   given-names: "Benjamin"
   orcid: "https://orcid.org/0000-0001-7815-2707"
-
 title: E3SM-Project/AutoCalibration: AutoCalibration 1.0
 version: ac1.0
 doi: 10.5281/zenodo.8284370 

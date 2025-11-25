@@ -1,0 +1,14 @@
+cldfrc_dp1 = 0.053936379295171755
+clubb_c1 = 1.0
+clubb_gamma_coef = 0.1
+p3_embryonic_rain_size = 3.450078484438275e-05
+p3_mincdnc = 5000000.0
+p3_nc_autocon_expon = -0.7
+p3_qc_accret_expon = 1.1176207075065938
+nucleate_ice_subgrid = 1.2
+zmconv_accr_fac = 1.5
+zmconv_auto_fac = 7.23025676363344
+zmconv_dmpdz = -0.0015684076951529046
+zmconv_ke = 5e-07
+zmconv_micro_dcs = 0.00020302536952052514
+zmconv_tau = 4522.206003053152

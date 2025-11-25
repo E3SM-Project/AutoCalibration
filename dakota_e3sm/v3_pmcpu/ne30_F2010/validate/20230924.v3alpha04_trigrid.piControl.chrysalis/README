@@ -1,0 +1,4 @@
+# v3 alpha 04 with optimized parameters plus mincdnc = 5e6
+
+Runscript copied from
+cp ~/repos/SimulationScripts/archive/CoupledGroup/v3_dev/run.20230924.v3alpha04_trigrid.piControl.chrysalis.sh .

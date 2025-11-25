@@ -1,0 +1,22 @@
+ROOT=/pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/ens/ 
+cd $ROOT 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.81 workdir.81   2>&1 | tee zstash_create_wd.81 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.82 workdir.82   2>&1 | tee zstash_create_wd.82 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.83 workdir.83   2>&1 | tee zstash_create_wd.83 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.84 workdir.84   2>&1 | tee zstash_create_wd.84 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.85 workdir.85   2>&1 | tee zstash_create_wd.85 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.86 workdir.86   2>&1 | tee zstash_create_wd.86 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.87 workdir.87   2>&1 | tee zstash_create_wd.87 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.88 workdir.88   2>&1 | tee zstash_create_wd.88 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.89 workdir.89   2>&1 | tee zstash_create_wd.89 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.90 workdir.90   2>&1 | tee zstash_create_wd.90 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.91 workdir.91   2>&1 | tee zstash_create_wd.91 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.92 workdir.92   2>&1 | tee zstash_create_wd.92 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.93 workdir.93   2>&1 | tee zstash_create_wd.93 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.94 workdir.94   2>&1 | tee zstash_create_wd.94 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.95 workdir.95   2>&1 | tee zstash_create_wd.95 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.96 workdir.96   2>&1 | tee zstash_create_wd.96 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.97 workdir.97   2>&1 | tee zstash_create_wd.97 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.98 workdir.98   2>&1 | tee zstash_create_wd.98 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.99 workdir.99   2>&1 | tee zstash_create_wd.99 
+zstash create --hpss=/home/w/wagmanbe/E3SMv3/dakota/v3_pmcpu/ne30_F2010/by_parts/ens/workdir.100 workdir.100   2>&1 | tee zstash_create_wd.100 

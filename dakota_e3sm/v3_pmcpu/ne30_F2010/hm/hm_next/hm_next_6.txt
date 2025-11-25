@@ -1,0 +1,13 @@
+clubb_c1 = 1.78076893127756
+clubb_gamma_coef = 0.255294734987032
+zmconv_tau = 10790.552957112
+zmconv_dmpdz = -0.00103173724546401
+zmconv_micro_dcs = 0.000317689407272117
+nucleate_ice_subgrid = 1.33162555658831
+p3_nc_autocon_expon = -0.865111372399083
+p3_qc_accret_expon = 1.24209950732986
+zmconv_auto_fac = 7.35499004707391
+zmconv_accr_fac = 1.61892222780588
+zmconv_ke = 5.01102529784537e-07
+cldfrc_dp1 = 0.0558534078607082
+p3_embryonic_rain_size = 2.23758416783705e-05

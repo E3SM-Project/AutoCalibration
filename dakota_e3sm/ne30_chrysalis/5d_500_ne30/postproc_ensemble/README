@@ -1,0 +1,11 @@
+20220120
+BMW copied 5d_chr_500_ne30_10nodes into here. This postprocesses the joint files in /lcrc/group/e3sm/ac.wagman/E3SM_simulations/dakota/5d_chr_500_ne30 which are actually made up of runs from 5d_chr_500_ne30_10nodes, 5d_chr_500_ne30_29nodes, and 5d_chr_500_ne30_30nodes
+
+This script works by first changing each workdirs DOUT_S_ROOT to itself, and then running case.st_archive.
+Then it calls zppy.
+Then it creates the targets.
+If at any time you screw up completely, you can retrieve the entire ensemble from NERSC at /global/cfs/cdirs/e3sm/wagmanbe/autotune/sims/5d_chr_500_ne30
+
+
+# old
+Climo for LHS ensembles now expects output on certain pressure fields to be available in eam.h0, for example, U850. 

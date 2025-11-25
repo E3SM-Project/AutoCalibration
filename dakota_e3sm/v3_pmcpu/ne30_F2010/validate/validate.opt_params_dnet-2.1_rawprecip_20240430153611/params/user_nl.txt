@@ -1,0 +1,1 @@
+/global/cfs/cdirs/e3sm/emulate/surrogate_models/v3/surrogate_provenance_dnet-2.1_rawprecip_20240430153611/optimization/optimization_dnet-2.1_rawprecip_reweight_20240430155608/output/opt_params_dnet-2.1_rawprecip_reweight.txt

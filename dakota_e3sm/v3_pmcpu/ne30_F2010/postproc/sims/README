@@ -1,0 +1,5 @@
+Order of postprocessing matters.
+1) zppy -c post.20230802.v3alpha02.F2010.pmcpu.intel.cfg  # Postproc the control run. Do this first to support model_vs_model comparison with PPE. 
+2) python call_st_archive.py   
+3) python call_zppy.py
+4) python call_targets.py

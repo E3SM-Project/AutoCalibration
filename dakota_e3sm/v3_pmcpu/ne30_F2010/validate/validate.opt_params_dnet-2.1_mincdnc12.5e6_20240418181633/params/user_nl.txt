@@ -1,0 +1,1 @@
+/global/cfs/cdirs/e3sm/emulate/surrogate_models/v3/surrogate_provenance_upweight5_dnet-2.1_20240416185959/optimization/optimization_dnet-2.1_mincdnc12.5e6_20240418181633/output/opt_params_dnet-2.1_mincdnc12.5e6.txt

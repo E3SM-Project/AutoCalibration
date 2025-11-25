@@ -1,0 +1,20 @@
++----------------------------------------+
+|     MAP (256 cores using L-BFGS-B)     |
++------------------------+---------------+
+|     Optimal parameters |        Values |
++------------------------+---------------+
+|               clubb_c1 |    1.00000000 |
+|       clubb_gamma_coef |    0.10000000 |
+|             zmconv_tau | 5990.99414347 |
+|           zmconv_dmpdz |   -0.00096924 |
+|       zmconv_micro_dcs |    0.00010000 |
+|   nucleate_ice_subgrid |    1.26706772 |
+|    p3_nc_autocon_expon |   -0.70000000 |
+|     p3_qc_accret_expon |    1.15330355 |
+|        zmconv_auto_fac |    4.18546052 |
+|        zmconv_accr_fac |    1.50000000 |
+|              zmconv_ke |    0.00000059 |
+|             cldfrc_dp1 |    0.06302008 |
+| p3_embryonic_rain_size |    0.00001500 |
+|             p3_mincdnc |    20000000 |
++------------------------+---------------+

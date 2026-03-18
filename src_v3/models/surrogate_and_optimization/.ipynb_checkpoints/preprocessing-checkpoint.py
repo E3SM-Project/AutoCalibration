@@ -16,7 +16,7 @@ def load_data(obs_path, ens_path, responses, param_bounds = None, enforce_bounds
     """
     Returns
     -------
-    Y_raw : list val_workdirs
+    Y_raw : list 
         list of length n_responses, each with first dimension governing nsim simulation runs, xarray time-averaged-simulation results
     Y_obs_raw : list
         list of length n_responses, with one fewer dimension compared to Y_raw, that are xarray time-averaged observations

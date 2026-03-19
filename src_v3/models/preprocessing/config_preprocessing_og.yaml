@@ -44,28 +44,7 @@ model:
             paths:
                 - ens/workdir.*/20230802.v3alpha02.F2010.pmcpu.intel.8N
                 - hm/*
-                - validate/validate.opt_params_high_10e6.v3a02.20231221
-                - validate/validate.opt_params_dnet-1.5
-                - validate/validate.opt_params_dnet-1.5_rawprecip_20240430134907
-                - validate/validate.opt_params_med_weighted.v3a02.20240111
-                - validate/validate.opt_params_dnet-2.1_all_20240510130950 
-                - validate/validate.opt_params_dnet-2.1_sqrtprecip_20240430163849
-                - validate/validate.opt_params.v3a02.20240111
-                - validate/validate.opt_params_dnet-2.1_reweight_mincdnc10e6_20240423092413
-                - validate/validate.opt_params_dnet-2.1_mincdnc12.5e6_20240418181633
-                - validate/validate.opt_params_dnet-2.1_reweight_mincdnc12.5e6_20240423101127 
-                - validate/validate.opt_params_low_weighted.v3a02.20231221
-                - validate/validate.opt_params_dnet-2.1_mincdnc7.5e6_20240418180837
-                - validate/validate.opt_params_dnet-2.1_rawprecip_20240430153611
-                - validate/validate.opt_params_dnet-1.5_reweight_20240423104748
-                - validate/validate.opt_params_dnet-1.5_reweight_mincdnc7.5e6_20240423124952 
-                - validate/validate.v3alpha02.2023102
-                - validate/validate.dnet-1.5_opt_20240523084559
-                - validate/validate.opt_params_dnet-2.1_reweight_20240423085041 
-                - validate/validate.opt_params_dnet-1.5_reweight_mincdnc12.5e6_20240423132337 
-                - validate/validate.dnet-2.1_opt_rw2_20240523104406
-                - validate/validate.opt_params_dnet-1.5_all_20240510123524
-                - validate/validate.opt_params_dnet-1.5_reweight_mincdnc10e6_20240423130448 
+                - validate/*
 
         validation:
             process: True

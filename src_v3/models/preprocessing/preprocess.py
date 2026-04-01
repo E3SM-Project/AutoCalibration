@@ -207,30 +207,30 @@ for f in files_to_cp:
     os.system('cp ./' + f + ' ' + os.path.join(specdir, f))
 
 # Save environment info
-savedir_env = os.path.join(savedir, 'env')
-if not os.path.exists(savedir_env):
-    os.mkdir(savedir_env)
-envdir = os.path.join(savedir_env, "env")
-v = 1
-while os.path.exists(envdir):
-    v += 1
-    envdir = os.path.join(savedir_env, "env" + str(v))
-os.mkdir(envdir)
+#savedir_env = os.path.join(savedir, 'env')
+#if not os.path.exists(savedir_env):
+#    os.mkdir(savedir_env)
+#envdir = os.path.join(savedir_env, "env")
+#v = 1
+#while os.path.exists(envdir):
+#    v += 1
+#    envdir = os.path.join(savedir_env, "env" + str(v))
+#os.mkdir(envdir)
 
-machine = cfg["machine"]
-git_repo = git.Repo(search_parent_directories=True)
-git_root = git_repo.git.rev_parse('--show-toplevel')
+#machine = cfg["machine"]
+#git_repo = git.Repo(search_parent_directories=True)
+#git_root = git_repo.git.rev_parse('--show-toplevel')
 
-files_to_cp = [f'autotuning_environment_{machine}.yml', f'autotuning_spec_file_{machine}.txt', 'README.md', f'requirements_{machine}.txt']
-for f in files_to_cp:
-    os.system('cp ' + os.path.join(git_root, f) + ' ' + os.path.join(envdir, f))
+#files_to_cp = [f'autotuning_environment_{machine}.yml', f'autotuning_spec_file_{machine}.txt', 'README.md', f'requirements_{machine}.txt']
+#for f in files_to_cp:
+#    os.system('cp ' + os.path.join(git_root, f) + ' ' + os.path.join(envdir, f))
 
 # create environment provenance file
-git_hash = git_repo.head.object.hexsha # what was the current git hash (aka git sha)?
-preprocessing_dir = os.path.abspath("./") # where did we run this script?
-with open(os.path.join(envdir, "provenance"), 'w') as f:
-    f.write("git hash: " + git_hash + "\n")
-    f.write("machine: " + machine + "\n")
-    f.write("preprocessing directory: " + preprocessing_dir + "\n")
+#git_hash = git_repo.head.object.hexsha # what was the current git hash (aka git sha)?
+#preprocessing_dir = os.path.abspath("./") # where did we run this script?
+#with open(os.path.join(envdir, "provenance"), 'w') as f:
+#    f.write("git hash: " + git_hash + "\n")
+#    f.write("machine: " + machine + "\n")
+#    f.write("preprocessing directory: " + preprocessing_dir + "\n")
 
 print("")

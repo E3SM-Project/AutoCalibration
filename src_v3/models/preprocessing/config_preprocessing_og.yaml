@@ -40,7 +40,7 @@ obs:
 model:
     datasets: 
         ensemble:
-            process: False
+            process: True
             paths:
                 - ens/workdir.*/20230802.v3alpha02.F2010.pmcpu.intel.8N
                 - hm/*

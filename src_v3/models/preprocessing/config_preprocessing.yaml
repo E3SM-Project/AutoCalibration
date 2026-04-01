@@ -40,7 +40,7 @@ obs:
 model:
     datasets: 
         ensemble:
-            process: False
+            process: True
             paths:
                 - ens/workdir.*/20230802.v3alpha02.F2010.pmcpu.intel.8N
                 - hm/*
@@ -68,7 +68,7 @@ model:
                 - validate/validate.opt_params_dnet-1.5_reweight_mincdnc10e6_20240423130448 
 
         validation:
-            process: True
+            process: False
             paths:
                 - ctrl/20230802.v3alpha02.F2010.pmcpu.intel.8N
                 - validate/*
@@ -77,16 +77,16 @@ model:
     responses:
     # file path for model output is {srcdir}/{workdir}/{file}
         srcdirs: 
-            ANN: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
-            DJF: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
-            MAM: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
-            JJA: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
-            SON: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
+            ANN: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
+            DJF: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
+            MAM: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
+            JJA: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
+            SON: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
         
         files:
             ANN:
-                - targets/atm/180x360_aave/5yr/*_ANN_000201_000612_merged.nc
-                - targets/atm/180x360_aave/5yr/*_ANN_000201_000612_feedbacks_lat_lon.nc
+                - targets/atm/24x48_aave/5yr/*_ANN_000201_000612_merged.nc
+               # - targets/atm/24x48_aave/5yr/*_ANN_000201_000612_feedbacks_lat_lon.nc
             DJF:
                 - targets/atm/24x48_aave/5yr/*_DJF_000201_000612_merged.nc
             MAM: 
@@ -118,11 +118,11 @@ model:
     params:
         # file path for input params is {srcdir}/{workdir}/{file} 
         srcdirs: 
-            ANN: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
-            DJF: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
-            MAM: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
-            JJA: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
-            SON: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010
+            ANN: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
+            DJF: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
+            MAM: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
+            JJA: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
+            SON: /global/cfs/cdirs/e3sm/emulate/postproc_e3sm/v3_merged_targets/ne30_F2010
 
         file: run/atm_in
         file_type: atm_in # {atm_in, xml}

@@ -176,7 +176,7 @@ if surrogate_params["fit_new"]:
         
     # save pertinent environment files
     surrogate_environment_dir = os.path.join(savedir, 'surrogate_fit', 'environment')
-    postprocessing.save_environment(surrogate_environment_dir, machine)
+    #postprocessing.save_environment(surrogate_environment_dir, machine)
 else:
     savedir = os.path.join(provenance_repo, surrogate_params["provenance_dir"])
     print("Loading model from {0}".format(savedir))
@@ -258,7 +258,7 @@ if cv_params["run"]:
     postprocessing.save_specs(os.path.join(cv_dir, 'specs'), workdirs, save_surrogate_specs=True)
 
     # save environment files
-    postprocessing.save_environment(os.path.join(cv_dir, 'environment'), machine)
+    #postprocessing.save_environment(os.path.join(cv_dir, 'environment'), machine)
         
     cv_score_mean = {k: np.mean(v) for k, v in cv_scores_all.items()}
         
@@ -291,6 +291,7 @@ print(table_model)
     
 #############################
 # Sensitivity Analysis
+#do we need this?
 #############################
 if sensitivity['run'] and (sensitivity['plot'] or sensitivity['save']):
     print("\nRunning Sensitivity Analysis")
@@ -332,6 +333,6 @@ if sensitivity['run'] and (sensitivity['plot'] or sensitivity['save']):
     postprocessing.save_specs(os.path.join(sensitivity_dir, 'specs'), workdirs, save_surrogate_specs=True)
 
     # save environment files
-    postprocessing.save_environment(os.path.join(sensitivity_dir, 'environment'), machine)
+    #postprocessing.save_environment(os.path.join(sensitivity_dir, 'environment'), machine)
     
     

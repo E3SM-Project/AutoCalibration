@@ -5,7 +5,7 @@ savename: test
 
 savedir: # where to save output (optional; default is the surrogate directory)
 
-surrogate: /global/cfs/cdirs/e3sm/emulate_paper/surrogate_models/surrogate_provenance_test_20260317154900 # directory where the surrogate is stored 
+surrogate: /global/cfs/cdirs/e3sm/emulate_paper/surrogate_models/surrogate_provenance_test_20260407170515 # directory where the surrogate is stored 
 
 #### Specifications for Optimization and Validation ####
 data: 
@@ -43,14 +43,13 @@ validation:
         save_predictions: True
         param_paths: # paths to files containing additional parameter sets to be validated
     val_workdirs: # (user_chosen_key: workdir)
-        ctrl: #cannot comment out this section entirely, have to give an empty string...should be an optional parameter given that one can specify validation files above as well.
-        #/pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/ctrl/20230802.v3alpha02.F2010.pmcpu.intel.8N 
-        #lowECS001: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/ens/workdir.293/20230802.v3alpha02.F2010.pmcpu.intel.8N
-        #lowECS002: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.dnet-2.1_RESTOM-0.5_rw2_20240531132555
-        #lowECS003: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.dnet-2.1_RESTOM-0.5_highR2_20240531093356 
-        #highECS001: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.v3alpha02.2023102
-        #highECS002: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.opt_params_dnet-1.5_reweight_mincdnc12.5e6_20240423132337 
-        #highECS003: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.dnet-1.5_RESTOM2.5_20240530123051
+        ctrl: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/ctrl/20230802.v3alpha02.F2010.pmcpu.intel.8N #cannot comment out this section entirely, have to give an empty string...should be an optional parameter given that one can specify validation files above as well.
+        lowECS001: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/ens/workdir.293/20230802.v3alpha02.F2010.pmcpu.intel.8N
+        lowECS002: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.dnet-2.1_RESTOM-0.5_rw2_20240531132555
+        lowECS003: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.dnet-2.1_RESTOM-0.5_highR2_20240531093356 
+        highECS001: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.v3alpha02.2023102
+        highECS002: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.opt_params_dnet-1.5_reweight_mincdnc12.5e6_20240423132337 
+        highECS003: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/validate/validate.dnet-1.5_RESTOM2.5_20240530123051
 ########
 
 

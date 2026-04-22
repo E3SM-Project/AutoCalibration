@@ -91,7 +91,7 @@ def get_responses(srcdir, files, variable_names):
 def get_sim(response_srcdir, workdir, response_files, src_name, param_srcdir, param_file):
     obs_vars = obs_variable_names[src_name].copy() 
     model_vars = model_variable_names[src_name].copy()
-    
+
     ds = get_responses(srcdir = os.path.join(response_srcdir, workdir),
                        files = response_files,
                        variable_names = model_vars)
@@ -171,10 +171,11 @@ for ds_name,cfg_ds in cfg_model["datasets"].items():
                                    )
                 except:
                     breakpoint()
+                
                 if ds_wd is not None:
                     ds_list.append(ds_wd)
                     valid_workdirs.append(wd)
-
+            #breakpoint()
             if len(ds_list) > 0:
                 # concatenate data from all workdirs
                 ds_all = xr.concat(ds_list, dim="workdir")

@@ -1,8 +1,7 @@
 library(tidync)
 library(dplyr)
 library(ggplot2)
-library(reshape2)
-library(gridExtra)
+#library(reshape2)
 
 #------------------------------------------------------------------------------#
 #F2010
@@ -13,9 +12,13 @@ ens = c("L001","H003")
 #ens = ens[-which(ens %in% c("ctrl","H001","H002","H003","L001","L002","L003"))]
 
 #f2010
-
-h003obs_latlon <- tidync("H003_rshp_w_obs.nc") %>% hyper_tibble()
-h003obs_latlev <- tidync("H003_rshp_w_obs.nc") %>% activate("D2,D4,D5,D0,D1") %>% hyper_tibble()
+data_path= "H003_rshp_w_obs_20260126.nc" #set data path
+h003obs_latlon <- tidync(data_path) %>% hyper_tibble()
+h003obs_latlon$lat <- as.numeric(h003obs_latlon$lat) #reformatting lat, lon, lev to numeric vectors
+h003obs_latlon$lon<- as.numeric(h003obs_latlon$lon)
+h003obs_latlev <- tidync(data_path) %>% activate("D3,D4,D2,D0,D1") %>% hyper_tibble()
+h003obs_latlev$lat <- as.numeric(h003obs_latlev$lat) #reformatting lat, lon, lev to numeric vectors
+h003obs_latlev$lev<- as.numeric(h003obs_latlev$lev)
 vars = c(colnames(h003obs_latlon)[1:8], colnames(h003obs_latlev)[1:3])
 vars=c(vars,"Net Cloud Forcing")
 f2010data_latlon <- h003obs_latlon %>% filter(ens_idx %in% ens, product=="mod", time==s)
@@ -72,16 +75,7 @@ colnames(f2010data)[which(colnames(f2010data)=="value")] = "value_f2010"
 alldata <- merge(coupleddata[,c("lat","variable","ens_idx","lev","lon","value_wcycl20tr")], f2010data[,c("lat","variable","ens_idx","lev","lon","value_f2010")], all=TRUE)
 
 #------------------------------------------------------------------------------#
-#plotting
-
-#ggplot(alldata %>% filter(!is.na(ens_idx))) + 
-#  geom_point(aes(x=value_f2010, y=value_wcycl20tr, col=ens_idx)) + 
-  #scale_y_continuous(labels = function(x) sprintf("%.3f", x)) +
-#  facet_wrap(~variable, scales="free") + 
-#  ylab("WCYCL20TR") + xlab("F2010") +
-#  labs(col=NULL) +
-#  geom_abline(slope = 1, color = "darkgrey", linetype = "dashed") +
-#  theme_minimal(base_size = 14) +theme(legend.position = "bottom") 
+#Figure 10
 
 alldata_bias$variable <- factor(alldata_bias$variable, levels = c("LWCF","T","PSL","TREFHT","Z500","U200","PRECT","SWCF","RELHUM","U850","U"))
 alldata_bias[,'ens_idx'] = recode(alldata_bias$ens_idx,H003="H3", L001="L1")

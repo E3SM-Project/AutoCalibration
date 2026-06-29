@@ -1,14 +1,17 @@
 library(tidync)
 library(dplyr)
 library(ggplot2)
-library(reshape2)
+#library(reshape2)
 
-h003obs_latlon <- tidync("H003_rshp_w_obs.nc") %>% hyper_tibble()
-h003obs_latlev <- tidync("H003_rshp_w_obs.nc") %>% activate("D2,D4,D5,D0,D1") %>% hyper_tibble()
-h003obs_area <- tidync("H003_rshp_w_obs.nc") %>% activate("D3,D2") %>% hyper_tibble() 
-
-h003obs_latlev$lat = as.numeric(h003obs_latlev$lat)
-h003obs_latlev$lev= as.numeric(h003obs_latlev$lev)
+data_path= "H003_rshp_w_obs_20260126.nc" #set data path
+h003obs_latlon <- tidync(data_path) %>% hyper_tibble()
+h003obs_latlon$lat <- as.numeric(h003obs_latlon$lat) #reformatting lat, lon, lev to numeric vectors
+h003obs_latlon$lon<- as.numeric(h003obs_latlon$lon)
+h003obs_latlev <- tidync(data_path) %>% activate("D3,D4,D2,D0,D1") %>% hyper_tibble()
+h003obs_latlev$lat <- as.numeric(h003obs_latlev$lat) #reformatting lat, lon, lev to numeric vectors
+h003obs_latlev$lev<- as.numeric(h003obs_latlev$lev)
+h003obs_area <- tidync(data_path) %>% activate("D5,D3") %>% hyper_tibble() 
+h003obs_area$lat <- as.numeric(h003obs_area$lat)
 h003obs_area_latlev <- expand.grid(lat=sort(unique(h003obs_latlev$lat)), lev=unique(h003obs_latlev$lev))
 h003obs_area_latlev[,'area'] <- rep(as.vector((h003obs_area %>% arrange(lon))[1:24,"area"])[[1]], length(unique(h003obs_latlev$lev)))
 

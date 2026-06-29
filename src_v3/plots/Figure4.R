@@ -1,12 +1,10 @@
 library(tidync)
 library(dplyr)
-library(ggplot2)
-library(reshape2)
-library(gridExtra)
 library(fmsb)
+library(reshape2)
 
-#h003 <- tidync("H003.nc") %>% hyper_tibble()
-h003obs_params <- tidync("H003_rshp_w_obs.nc") %>% activate("D6,D5") %>% hyper_tibble()
+data_path= "H003_rshp_w_obs_20260126.nc" #set data path
+h003obs_params <- tidync(data_path) %>% activate("D6,D2") %>% hyper_tibble()
 params = unique(h003obs_params$input_param)
 
 #reformat data

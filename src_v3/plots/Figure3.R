@@ -3,7 +3,7 @@ library(ggplot2)
 library(reshape2)
 ecs_weights <- read.csv("ecs_weights.csv")
 
-#all seasons for each target field, RESTOM last
+#all seasons for each target field, RESTOM last for run H01
 h001_weights_allseasons <- c(0.28463486, 0.44940442, 0.44362695, 0.23692335, 0.06452651, 0.24141523,
   0.21241179, 0.06664942, 0.4026099,  0.35348677, 0.40840895, 0.21760331,
   0.06389447, 0.2557827,  0.18929332, 0.06155023, 0.40621401, 0.38365648,

@@ -1,7 +1,7 @@
 library(tidync)
 library(dplyr)
 library(ggplot2)
-#library(reshape2)
+library(reshape2)
 
 #------------------------------------------------------------------------------#
 #F2010
@@ -31,23 +31,22 @@ rm(h003obs_latlon, h003obs_latlev)
 
 #WCYCL20TR
 #from coupled_candidates_zenodo data repo
-l001_coupled_file <-grep("ANN", list.files(path = "v3alt.LR.lowECS001.historical/targets/atm/24x48_aave/30yr", recursive = TRUE), value=TRUE)
-h003_coupled_file <-grep("ANN", list.files(path = "v3alt.LR.highECS003.historical/targets/atm/24x48_aave/30yr", recursive = TRUE), value=TRUE)
-ctrl_coupled_file <-grep("ANN", list.files(path = "v3alt.LR.historical_0101/targets/atm/24x48_aave/30yr", recursive = TRUE), value=TRUE)
+l001_coupled_file <-paste0("v3alt.LR.lowECS001.historical/",grep("ANN", list.files(path = "v3alt.LR.lowECS001.historical", recursive = TRUE), value=TRUE))
+h003_coupled_file <-paste0("v3alt.LR.highECS003.historical/",grep("ANN", list.files(path = "v3alt.LR.highECS003.historical", recursive = TRUE), value=TRUE))
+ctrl_coupled_file <-paste0("v3.LR.historical_0101/",grep("ANN", list.files(path = "v3.LR.historical_0101", recursive = TRUE), value=TRUE))
 
 l001_coupled_latlev <- tidync(l001_coupled_file) %>% hyper_tibble()
 l001_coupled_latlon <- tidync(l001_coupled_file) %>% activate("D3,D1") %>% hyper_tibble()
 l001_coupled_latlev[,'ens_idx'] = "L001"
 l001_coupled_latlon[,'ens_idx'] = "L001"
 
-
-h003_coupled_latlev <- tidync("v3alt.LR.highECS003.historical_ANN_198501_201412_merged.nc") %>% hyper_tibble()
-h003_coupled_latlon <- tidync("v3alt.LR.highECS003.historical_ANN_198501_201412_merged.nc") %>% activate("D3,D1") %>% hyper_tibble()
+h003_coupled_latlev <- tidync(h003_coupled_file) %>% hyper_tibble()
+h003_coupled_latlon <- tidync(h003_coupled_file) %>% activate("D3,D1") %>% hyper_tibble()
 h003_coupled_latlev[,'ens_idx'] = "H003"
 h003_coupled_latlon[,'ens_idx'] = "H003"
 
-ctrl_coupled_latlev <- tidync("v3.LR.historical_0101_ANN_198501_201412_merged.nc") %>% hyper_tibble()
-ctrl_coupled_latlon <- tidync("v3.LR.historical_0101_ANN_198501_201412_merged.nc") %>% activate("D3,D1") %>% hyper_tibble()
+ctrl_coupled_latlev <- tidync(ctrl_coupled_file) %>% hyper_tibble()
+ctrl_coupled_latlon <- tidync(ctrl_coupled_file) %>% activate("D3,D1") %>% hyper_tibble()
 
 coupled_latlon <- (rbind(l001_coupled_latlon, h003_coupled_latlon))[,-c(1:2,6,8,13)]
 coupled_latlev <- rbind(l001_coupled_latlev, h003_coupled_latlev)

@@ -1,0 +1,2 @@
+Variables,Unit,Test_mean,Ref._mean,Mean_Bias,Test_STD,Ref._STD,RMSE,Correlation
+PRECT global GPCP_v2.3,mm/day,2.808,2.685,0.123,2.599,2.152,1.227,0.885

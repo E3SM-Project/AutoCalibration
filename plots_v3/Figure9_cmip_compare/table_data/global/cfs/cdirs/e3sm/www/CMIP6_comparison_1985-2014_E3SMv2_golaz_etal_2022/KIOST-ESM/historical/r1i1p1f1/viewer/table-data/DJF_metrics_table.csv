@@ -1,0 +1,12 @@
+Variables,Unit,Test_mean,Ref._mean,Mean_Bias,Test_STD,Ref._STD,RMSE,Correlation
+PRECT global GPCP_v2.3,mm/day,2.763,2.699,0.064,2.487,2.369,1.631,0.776
+SWCF global ceres_ebaf_toa_v4.1,W m-2,-58.862,-49.24,-9.622,43.688,36.84,20.252,0.916
+LWCF global ceres_ebaf_toa_v4.1,W m-2,29.785,25.84,3.945,17.629,14.27,10.863,0.819
+U-850mb global ERA-Interim,m s-1,1.085,1.068,0.017,6.228,5.798,2.01,0.947
+U-200mb global ERA-Interim,m s-1,17.822,16.981,0.841,16.051,14.763,4.683,0.959
+Z3-500mb global ERA-Interim,hectometer,56.892,56.403,0.489,3.131,2.696,2.294,0.714
+PSL global ERA-Interim,mbar,1012.889,1011.442,1.446,8.737,8.711,2.726,0.965
+PSL global ERA5,mbar,1012.889,1011.539,1.35,8.737,8.594,2.686,0.964
+U-850mb global ERA5,m s-1,1.085,1.042,0.043,6.228,5.83,2.097,0.942
+U-200mb global ERA5,m s-1,17.822,16.975,0.847,16.051,14.671,4.749,0.958
+Z3-500mb global ERA5,hectometer,56.892,56.387,0.505,3.131,2.687,2.3,0.713

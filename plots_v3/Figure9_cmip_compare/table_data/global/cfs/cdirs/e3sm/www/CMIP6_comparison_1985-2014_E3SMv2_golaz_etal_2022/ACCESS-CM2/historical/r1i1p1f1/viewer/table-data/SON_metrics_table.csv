@@ -1,0 +1,17 @@
+Variables,Unit,Test_mean,Ref._mean,Mean_Bias,Test_STD,Ref._STD,RMSE,Correlation
+PRECT global GPCP_v2.3,mm/day,3.083,2.685,0.398,2.785,2.214,1.466,0.865
+RESTOM global ceres_ebaf_toa_v4.1,W m-2,2.9,1.986,0.914,73.034,73.678,10.017,0.991
+SWCF global ceres_ebaf_toa_v4.1,W m-2,-45.215,-46.393,1.177,24.997,25.674,10.815,0.91
+LWCF global ceres_ebaf_toa_v4.1,W m-2,23.117,25.677,-2.56,12.317,12.212,7.194,0.85
+U-850mb global ERA-Interim,m s-1,0.999,1.173,-0.174,5.519,5.602,1.145,0.98
+U-200mb global ERA-Interim,m s-1,17.721,15.732,1.989,12.714,13.148,3.773,0.97
+Z3-500mb global ERA-Interim,hectometer,56.561,56.594,-0.033,2.622,2.691,0.203,0.997
+PSL global ERA-Interim,mbar,1011.943,1011.255,0.688,8.665,8.892,2.185,0.972
+PSL global ERA5,mbar,1011.943,1011.349,0.594,8.665,8.787,2.243,0.969
+U-850mb global ERA5,m s-1,0.999,1.153,-0.155,5.519,5.585,1.185,0.979
+U-200mb global ERA5,m s-1,17.721,15.697,2.025,12.714,13.063,3.758,0.97
+Z3-500mb global ERA5,hectometer,56.561,56.582,-0.022,2.622,2.678,0.195,0.998
+TREFHT land ERA-Interim,DegC,8.789,9.189,-0.401,19.1,18.925,2.225,0.994
+TREFHT global ERA-Interim,DegC,14.368,14.456,-0.088,14.424,14.164,1.697,0.993
+TREFHT land ERA5,DegC,8.789,9.192,-0.403,19.1,19.199,2.517,0.992
+TREFHT global ERA5,DegC,14.368,14.288,0.08,14.424,14.202,1.84,0.992

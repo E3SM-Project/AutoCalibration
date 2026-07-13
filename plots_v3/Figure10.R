@@ -9,7 +9,6 @@ library(ggplot2)
 #setup
 s="ANN"
 ens = c("L001","H003")
-#ens = ens[-which(ens %in% c("ctrl","H001","H002","H003","L001","L002","L003"))]
 
 #f2010
 data_path= "H003_rshp_w_obs_20260126.nc" #set data path
@@ -31,10 +30,16 @@ f2010ctrl_latlev = h003obs_latlev %>% filter(product=="mod", time==s, ens_idx=="
 rm(h003obs_latlon, h003obs_latlev)
 
 #WCYCL20TR
-l001_coupled_latlev <- tidync("v3alt.LR.lowECS001.historical_ANN_198501_201412_merged.nc") %>% hyper_tibble()
-l001_coupled_latlon <- tidync("v3alt.LR.lowECS001.historical_ANN_198501_201412_merged.nc") %>% activate("D3,D1") %>% hyper_tibble()
+#from coupled_candidates_zenodo data repo
+l001_coupled_file <-grep("ANN", list.files(path = "v3alt.LR.lowECS001.historical/targets/atm/24x48_aave/30yr", recursive = TRUE), value=TRUE)
+h003_coupled_file <-grep("ANN", list.files(path = "v3alt.LR.highECS003.historical/targets/atm/24x48_aave/30yr", recursive = TRUE), value=TRUE)
+ctrl_coupled_file <-grep("ANN", list.files(path = "v3alt.LR.historical_0101/targets/atm/24x48_aave/30yr", recursive = TRUE), value=TRUE)
+
+l001_coupled_latlev <- tidync(l001_coupled_file) %>% hyper_tibble()
+l001_coupled_latlon <- tidync(l001_coupled_file) %>% activate("D3,D1") %>% hyper_tibble()
 l001_coupled_latlev[,'ens_idx'] = "L001"
 l001_coupled_latlon[,'ens_idx'] = "L001"
+
 
 h003_coupled_latlev <- tidync("v3alt.LR.highECS003.historical_ANN_198501_201412_merged.nc") %>% hyper_tibble()
 h003_coupled_latlon <- tidync("v3alt.LR.highECS003.historical_ANN_198501_201412_merged.nc") %>% activate("D3,D1") %>% hyper_tibble()

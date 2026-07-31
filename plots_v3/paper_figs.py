@@ -1142,7 +1142,12 @@ def scat_swcf_vs_swfeed(all_cases, valid_lo, valid_hi):
 
 
 if __name__ == "__main__":
+    # ------------------------------------------------------------
+    # Path to Data. User modify. 
+    # Dataset available on zenodo: https://zenodo.org/records/21284943
+
     data_file_path = "~/Downloads/H003_rshp_w_obs_20260126.nc"
+    # ------------------------------------------------------------
 
     all_cases = load_merged_nc(data_file_path)
     valid_hi = all_cases.where( (all_cases.ens_idx.str.match('H001') |

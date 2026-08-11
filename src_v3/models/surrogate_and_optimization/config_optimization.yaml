@@ -43,7 +43,6 @@ validation:
         save_predictions: True
         param_paths: # paths to files containing additional parameter sets to be validated
 
-    #cannot comment out this section entirely, have to give an empty string...should be an optional parameter given that one can specify validation files above as well.
     val_workdirs: # (user_chosen_key: workdir)
         ctrl: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/ctrl/20230802.v3alpha02.F2010.pmcpu.intel.8N 
         #lowECS001: /pscratch/sd/w/wagmanbe/E3SM_simulations/dakota/v3_pmcpu/ne30_F2010/ens/workdir.293/20230802.v3alpha02.F2010.pmcpu.intel.8N

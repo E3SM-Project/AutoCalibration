@@ -242,6 +242,7 @@ if optimization['run']:
 
 ###################
 # validation
+# for figures only
 ###################
 # Load in simulation runs and observations
 if validation['modsim']['run'] or validation['surrogate']['run']:
@@ -269,7 +270,10 @@ if validation['modsim']['run']:
 
     cost_val, component_cost_val, component_weights = get_ensemble_cost(nval, response_names, Y_val, obs, area_weights,
                                                                         lat, lon
-                                                                       )
+                                                                      )
+    if(nval==1): #if only one validation run
+        X_val = X_val.expand_dims(dim={'row': 1})
+        
     cost_val_dat = np.column_stack((val_workdirs, X_val, component_cost_val, cost_val))
    
     # combine all info into one array

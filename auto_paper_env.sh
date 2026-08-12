@@ -19,7 +19,7 @@ cd $PACKAGE_ROOT/clif
 $ENV_ROOT/auto_paper/bin/pip install .
 
 mkdir $PACKAGE_ROOT/GitPython
-git clone git@github.com:sandialabs/clif.git $PACKAGE_ROOT/GitPython
+git clone git@github.com:gitpython-developers/GitPython.git $PACKAGE_ROOT/GitPython
 cd $PACKAGE_ROOT/GitPython
 $ENV_ROOT/auto_paper/bin/pip install .
 

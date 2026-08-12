@@ -151,7 +151,7 @@ def load_val_data(val_path, val_workdirs, responses, M):
         else:
             raise Exception(f"Multiple files match {val_path} AND contain {src_name}")
         dataset_src = xr.open_dataset(val_path_src)
-        dataset_src = dataset_src.sel(workdir=dataset_src.workdir.isin(val_workdirs))
+        #dataset_src = dataset_src.sel(workdir=dataset_src.workdir.isin(val_workdirs))
 
         # response_names = list(responses[src_name].values())
         # response_names += ['params']
@@ -171,8 +171,11 @@ def load_val_data(val_path, val_workdirs, responses, M):
         
         for r in responses[src_name].values():
             Y_val_raw.append(dataset_src[r])
-
-    nsim = len(Y_val_raw[0])
+    
+    #breakpoint()
+  
+    #nsim = len(Y_val_raw[0])
+    nsim = Y_val_raw[0].size #above does not work with only a sngle ensemble member in the validation directory
     n_responses = len(Y_val_raw)
     Y_val = [np.reshape(Y_val_raw[i].values, newshape=(nsim,-1))[:,M[i]] for i in range(n_responses)]
             
@@ -439,7 +442,8 @@ def transform_val_data(Y_val_raw, n_responses, M):
     """
 
     # vectorize everything and downsample according to mask
-    nval=len(Y_val_raw[0])
+    #nval=len(Y_val_raw[0])
+    nval=Y_val_raw[0].size
     Y_val = [np.reshape(Y_val_raw[i].values, newshape=(nval,-1))[:,M[i]] for i in range(n_responses)]
 
     return Y_val

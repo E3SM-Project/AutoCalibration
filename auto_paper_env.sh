@@ -32,7 +32,6 @@ conda activate $ENV_ROOT/$ENV_NAME
 
 ####### install remaining packages ##################################
 
-mkdir $PACKAGE_ROOT
 mkdir $PACKAGE_ROOT/tesuract
 git clone git@github.com:wagmanbe/tesuract.git $PACKAGE_ROOT/tesuract
 cd $PACKAGE_ROOT/tesuract

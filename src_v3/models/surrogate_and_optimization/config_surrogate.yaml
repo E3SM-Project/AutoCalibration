@@ -1,12 +1,13 @@
 machine: perlmutter 
 
 data: 
-    obs_path: /global/cfs/cdirs/e3sm/emulate_paper/data/obs/*obs*.nc
-    ens_path: /global/cfs/cdirs/e3sm/emulate_paper/data/ensemble/*ensemble.nc
+    obs_path: /pscratch/sd/w/wagmanbe/test_surrogate_v3/data/obs/*obs*.nc
+    ens_path: /pscratch/sd/w/wagmanbe/test_surrogate_v3/data/ensemble/*ensemble.nc
 
-provenance_repo: /global/cfs/cdirs/e3sm/emulate_paper/surrogate_models
+#provenance_repo: ../../../surrogate_models
+provenance_repo: /pscratch/sd/w/wagmanbe/test_surrogate_v3/
 
-savename: test
+savename: surrogate_v3_paper
 
 responses: 
     ANN:

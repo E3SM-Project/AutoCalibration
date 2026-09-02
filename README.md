@@ -28,21 +28,31 @@ POCs are Benjamin M. Wagman, Lyndsay Shand, and Andy Salinger (formerly Drew Yar
 	* "src/eda/": code for exploratory data analysis (EDA) of the surrogate, perturbed parameter ensemble, and optimization results. This folder contains scripts to process the results after creating a surrogate and miscellaneous data used in EDA. 
 
 
-* The processed data is expected to be placed in "data/" but this can be set by the user, and the surrogate model saves to the "surrogate_models/" folder. 
-
-* Using the preprocessed data found on zeonodo (add link), can be used to fit the surrogate and run the optimization code:
+**Follow these steps to fit the surrogate and run the optimization code:**
 
 Step 1. Create and load the auto_paper conda env (see auto_paper_env.sh)
+
 Step 2. Download the data from zenodo (link)
+
 Step 3. Use a compute node. Run the command:
-	export OPENBLAS_NUM_THREADS=1
+
+	'export OPENBLAS_NUM_THREADS=1'
+
 Step 4. Change the data path in config_surrogate.yaml and config_optimization.yaml
-	default: ./data/
-Step 5. Fit surrogate: python surrogate.py config_surrogate.yaml
-	default saves to: ./surrogate_models/
+
+	default: './data/'
+
+Step 5. Fit surrogate: 'python surrogate.py config_surrogate.yaml'
+
+	default saves to: './surrogate_models/'
+
 Step 6. Update surrogate path in config_optimization.yaml
-	default: ./surrogate_models
-Step 7. Run optimization: python optimization.py config_optimization.yaml
+	
+	default: '../../../surrogate_models'
+
+Step 7. Run optimization: 
+
+	'python optimization.py config_optimization.yaml'
 
 Yarger, D., Wagman, B. M., Chowdhary, K., & Shand, L. (2024). Autocalibration of the E3SM version 2 atmosphere model using a PCA-based surrogate for spatial fields. Journal of Advances in Modeling Earth Systems, 16, e2023MS003961. https://doi.org/10.1029/2023MS003961
 
